@@ -12,6 +12,8 @@ body{
     color: white;
     border: none;
     border-radius: 4px;
+
+    
 }
 
 .text-input:focus{
@@ -20,11 +22,26 @@ body{
 
 
 .box{
+    
     width: 550px;
     margin: 0 auto;
     
+    display: grid;
+    grid-template-columns: 450px 100px;
+    
 }
 
+::-webkit-scrollbar{
+    background-color:#4F545C66;
+    margin-top: 8px;
+    width: 10px;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgb(32, 34, 37); 
+    border-radius: 10px;
+  }
 
 .main{
     display: grid;
@@ -55,6 +72,11 @@ body{
     background-color: #36393F;
     font-family: Arial, Helvetica, sans-serif;
     color: #DCDDDE;
+    bottom: 0;
+    flex-direction: column-reverse;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 90vh;
 }
 
 
@@ -71,6 +93,7 @@ body{
     display: grid;
     grid-template-columns:  75px 800px;
     margin-bottom: 8px;
+    width: 100vw;
 }
 
 

@@ -13,14 +13,6 @@
 <body>
     
 
-    </div>
-    <div class="box">
-        <div contenteditable id="post-content" class="text-input"></div>
-        <button id="submit-button">SUBMIT</button>
-    </div>
-    
-
-    
     <div class="massages" id="massage_box">
         {% for message in messages %}
             <div class="message">
@@ -34,7 +26,12 @@
             </div>
         {% endfor %}
     </div>
+
     
+    <div class="box">
+        <div contenteditable id="post-content" class="text-input"></div>
+        <button id="submit-button">SUBMIT</button>
+    </div>
 </body>
 
 <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
