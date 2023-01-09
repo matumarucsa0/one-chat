@@ -3,6 +3,11 @@ body{
     background-color: #36393F;
 }
 
+.bar{
+    height: 5vh;
+    background-color: black;
+}
+
 .text-input{
     width: 450px;
     border: 1px solid black;
@@ -76,7 +81,7 @@ body{
     flex-direction: column-reverse;
     overflow-y: scroll;
     overflow-x: hidden;
-    height: 90vh;
+    height: 80vh;
 }
 
 

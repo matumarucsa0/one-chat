@@ -12,7 +12,7 @@
 </head>
 <body>
     
-
+    <div class="bar"></div>
     <div class="massages" id="massage_box">
         {% for message in messages %}
             <div class="message">
@@ -93,16 +93,31 @@
 
         //send massage
         const element = document.getElementById("submit-button");
+        val_e = document.getElementById("post-content")
+        val_e.focus()
+
         element.addEventListener("click", function() {
-            document.execCommand('removeFormat', false, null);
-
-            val_e = document.getElementById("post-content")
-            socket.emit("post--",{username: user, user_id : user_id, chat : val_e.innerHTML});
-            val_e.innerHTML = "";
-
+            if (val_e.innerHTML != ""){
+                document.execCommand('removeFormat', false, null);
+                
+                socket.emit("post--",{username: user, user_id : user_id, chat : val_e.innerHTML});
+                val_e.innerHTML = "";
+                val_e.focus()
+            }
         });
 
-        
+        document.addEventListener("keydown", function(event){
+            
+            if (event.keyCode == 13){
+                event.preventDefault()
+                if (val_e.innerHTML != ""){
+                    socket.emit("post--",{username: user, user_id : user_id, chat : val_e.innerHTML});
+                    val_e.innerHTML = "";
+                    val_e.focus()
+                }
+                
+            } 
+        })
         
         
 
