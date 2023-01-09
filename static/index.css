@@ -80,6 +80,7 @@ body{
 }
 
 
+
 .emote-container{
     margin-top: 4px;
     width: 38px;
@@ -96,6 +97,14 @@ body{
     width: 100vw;
 }
 
+#anchor{
+    overflow-anchor: auto;
+    height: 1px;
+}
+
+.massages *{
+    overflow-anchor: none;
+}
 
 .text-top{
     margin: 0px;

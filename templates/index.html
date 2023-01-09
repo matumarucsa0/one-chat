@@ -25,6 +25,7 @@
                 </div>
             </div>
         {% endfor %}
+        <div id="anchor"></div>
     </div>
 
     
@@ -44,6 +45,9 @@
         socket.on('connect', function() {
             socket.emit('my event', {data: 'I\'m connected!', name:user});
         });
+        //scrooll
+        var anchor = document.getElementById("anchor")
+        anchor.scrollIntoView(true)
 
         //on recieved massage
         socket.on('massage', function(data){ 
@@ -75,10 +79,16 @@
             mas.setAttribute("class", "text-bottom")
             mas.innerHTML = data['chat']
             d.appendChild(mas)
+            
+            
 
             message.appendChild(d)
-
-            box.appendChild(message)
+            
+            
+            var anchor = document.getElementById("anchor")
+            console.log(message)
+            console.log(anchor)
+            box.insertBefore(message, anchor);
         })
 
         //send massage
