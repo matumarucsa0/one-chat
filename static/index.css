@@ -8,6 +8,12 @@ body{
     background-color: black;
 }
 
+.profile{
+    margin-left: auto;
+}
+
+
+
 .text-input{
     width: 450px;
     border: 1px solid black;
@@ -26,13 +32,14 @@ body{
 }
 
 
+
 .box{
     
     width: 550px;
     margin: 0 auto;
     
     display: grid;
-    grid-template-columns: 450px 100px;
+    grid-template-columns: 450px 50px 100px;
     
 }
 

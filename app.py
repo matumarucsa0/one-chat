@@ -3,10 +3,12 @@ from flask_session import Session
 import sqlite3
 from flask_socketio import SocketIO, emit
 from datetime import datetime
+import os
 
+from flask_ngrok import run_with_ngrok
 
 app = Flask(__name__)
-
+run_with_ngrok(app=app)
 conn = sqlite3.connect("data.db")
 
 app.config["SESSION_PERMANENT"] = False
@@ -34,18 +36,32 @@ def handle_(data):
 
     conn.execute(f"INSERT INTO posts (post, date, username, user_id) VALUES ('{data['chat']}', '{time}', '{data['username']}', {data['user_id']})")
     conn.commit()
+
     u_name = data["username"]
-    emit("massage",{'chat':data['chat'], 'user': f"{u_name} - {time}"}, broadcast=True)
+
+
+    emit("massage",{'chat':data['chat'], 'user': f"{u_name} - {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic']}, broadcast=True)
 
 
 @app.route("/", methods=["get", "post"])
 def index():
     try:
         user_id = session["user_id"]
-        username = conn.execute(f"SELECT username FROM users WHERE id={user_id}").fetchall()[0][0]
+        username, profile_pic = conn.execute(f"SELECT username, profile_pic FROM users WHERE id={user_id}").fetchall()[0]
+
+        
+        
         messages = conn.execute("SELECT * FROM posts;").fetchall()
-        print(messages) 
-        return render_template("index.html",user_id = user_id, username = username, messages = messages)
+        
+        r = []
+        # !!! LOW EFFICIENCY
+        for x in messages:
+            z = list(x) + [conn.execute(f"SELECT profile_pic FROM users WHERE id={x[3]}").fetchall()[0][0]]
+            r.append(z)
+            
+
+        
+        return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic,  messages = r)
 
     except:
         return redirect("/login")
@@ -133,13 +149,35 @@ def reg():
         elif len(y) >= 2:
             return render_template("register.html", error = "This email is already used")
 
-        conn.execute(f"INSERT INTO users (username, password, email) VALUES('{username}', '{request.form.get('password')}', '{request.form.get('email')}')")
+        conn.execute(f"INSERT INTO users (username, password, email, profile_pic) VALUES('{username}', '{request.form.get('password')}', '{request.form.get('email')}', 'default.png')")
         conn.commit()
         return redirect("/login")
     else:
         return render_template("register.html")
 
+@app.route("/t", methods=["GET"])
+def f():
+    return render_template("profile.html")
 
+@app.route("/profile-change", methods=["POST"])
+def upload():
+
+    user = session['user_id']
+    current_profile_pic = conn.execute(f"SELECT profile_pic FROM users WHERE id={user}").fetchall()[0][0]
+    
+    #check if default png
+    if current_profile_pic != "default.png":
+        os.remove(f"C:\\Users\\Matus\\Desktop\\one-chat\\static\\profile-pic\\{current_profile_pic}")
+    # handle file
+    file = request.files["file"]
+    fileext = file.filename.split(".")[1]
+    file.save(f"C:\\Users\\Matus\\Desktop\\one-chat\\static\\profile-pic\\{str(session['user_id'])}.{fileext}")
+    
+    #change path
+    conn.execute(f"UPDATE users set profile_pic='{str(session['user_id'])}.{fileext}' WHERE id={user}")
+    conn.commit()
+
+    return redirect("/")
     
 if __name__ == '__main__':
-    socketio.run(app)
+    socketio.run(app, debug=True)
