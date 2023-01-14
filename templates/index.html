@@ -21,7 +21,15 @@
                     </div>
                     <div>
                         <p class="text-top">{{message[2]}}  {{message[1]}}</p>
-                        <p class="text-bottom">{{message[0]}}</p>
+                        <p class="text-bottom">
+                            {%for content in message[0]%}
+                                {% if "img--" in content %}
+                                        <img style="max-width: 300px; max-height: 300px" src="{{content[5:]}}">
+                                {% else %}
+                                    <p>{{content}}</p>
+                                {% endif %}
+                            {% endfor %}
+                        </p>
                     </div>
                 </div>
             {% endfor %}

@@ -34,8 +34,7 @@ def after_request(response):
 def handle_(data):
     time = datetime.now().strftime('%m/%d/%Y %H:%M:%S')
 
-    conn.execute(f"INSERT INTO posts (post, date, username, user_id) VALUES ('{data['chat']}', '{time}', '{data['username']}', {data['user_id']})")
-    conn.commit()
+    
 
     post = data['chat']
 
@@ -55,18 +54,24 @@ def handle_(data):
     i = len(stamps) - 1
     r = []
 
-    print(post[stamps[0][1]])
+    
 
     while i >= 0:
         r.append(post[(stamps[i][1] + 1):])
-        r.append(post[stamps[i][0]: (stamps[i][1] + 1)])
+        x = str(post[stamps[i][0]: (stamps[i][1] + 1)]).removeprefix('<img src="').removesuffix('">')
+        r.append(f"img--{x}")
         post = post[:stamps[i][0]]
         i -= 1
     
     while "" in r:
         r.remove("")
 
-    r.reverse()    
+    r.reverse()
+    r = ";,;".join(r)
+    if len(r) == 0:
+        r = post
+    conn.execute(f"INSERT INTO posts (post, date, username, user_id) VALUES ('{r}', '{time}', '{data['username']}', {data['user_id']})")
+    conn.commit()
 
     u_name = data["username"]
 
@@ -87,7 +92,9 @@ def index():
         r = []
         # !!! LOW EFFICIENCY
         for x in messages:
-            z = list(x) + [conn.execute(f"SELECT profile_pic FROM users WHERE id={x[3]}").fetchall()[0][0]]
+            x = list(x)
+            x[0] = x[0].split(';,;')
+            z = x + [conn.execute(f"SELECT profile_pic FROM users WHERE id={x[3]}").fetchall()[0][0]]
             r.append(z)
             
 
