@@ -8,8 +8,8 @@ import os
 from flask_ngrok import run_with_ngrok
 
 app = Flask(__name__)
-run_with_ngrok(app=app)
-conn = sqlite3.connect("data.db")
+
+conn = sqlite3.connect("data.db", check_same_thread=False)
 
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
