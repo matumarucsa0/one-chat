@@ -12,27 +12,28 @@
 </head>
 <body>
     
-    
-    <div class="massages" id="massage_box">
-        {% for message in messages %}
-            <div class="message">
-                <div class="emote-container">
-                    <img width="75" height="75" style=" max-width: 100%; max-height: 100%; border-radius: 50%;" src="/static/profile-pic/{{message[4]}}">
+    <div class="main-">
+        <div class="massages" id="massage_box">
+            {% for message in messages %}
+                <div class="message">
+                    <div class="emote-container">
+                        <img width="75" height="75" style=" max-width: 100%; max-height: 100%; border-radius: 50%;" src="/static/profile-pic/{{message[4]}}">
+                    </div>
+                    <div>
+                        <p class="text-top">{{message[2]}}  {{message[1]}}</p>
+                        <p class="text-bottom">{{message[0]}}</p>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-top">{{message[2]}}  {{message[1]}}</p>
-                    <p class="text-bottom">{{message[0]}}</p>
-                </div>
-            </div>
-        {% endfor %}
-        <div id="anchor"></div>
-    </div>
+            {% endfor %}
+            <div id="anchor"></div>
+        </div>
 
-    
-    <div class="box">
-        <div contenteditable id="post-content" class="text-input"></div>
-        <button>emo</button>
-        <button id="submit-button">SUBMIT</button>
+        
+        <div class="box">
+            <div contenteditable id="post-content" class="text-input"></div>
+            <button>emo</button>
+            <button id="submit-button">SUBMIT</button>
+        </div>
     </div>
 </body>
 

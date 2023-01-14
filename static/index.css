@@ -1,5 +1,13 @@
 body{
     margin: 0;
+    background-color: rgb(47, 49, 54);
+}
+
+
+.main-{
+    width: 80%;
+    height: 100vh;
+    margin: 0 auto;
     background-color: #36393F;
 }
 
