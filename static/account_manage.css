@@ -22,7 +22,7 @@ body{
 .inner-box p{
     color: rgb(117, 117, 117);
     margin-bottom: 0px;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .input{
@@ -42,6 +42,27 @@ body{
     outline: none;
 }
 
+.forgot-password-box{
+    margin-top: 6px;
+}
+
+.forgot-password, .register{
+    color: #0d6efd;
+    font-size: 14px;
+
+}
+
+.forgot-password:hover{
+    cursor: pointer;
+    opacity: 0.8;
+    text-decoration: underline;
+}
+.register:hover{
+    cursor: pointer;
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
 .input-button{
     background-color: #0d6efd;
     color: white;
@@ -50,7 +71,20 @@ body{
     border-radius: 4px;
     height: 40px;
     font-size: 20px;
-    margin-top: 14px;
+    margin-top: 10px;
     width: 300px;
     
+}
+
+.input-button:hover{
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+.register-box *{
+    display: inline-block;
+}
+
+.register-text{
+    font-size: 14px;
 }
