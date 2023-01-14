@@ -37,6 +37,37 @@ def handle_(data):
     conn.execute(f"INSERT INTO posts (post, date, username, user_id) VALUES ('{data['chat']}', '{time}', '{data['username']}', {data['user_id']})")
     conn.commit()
 
+    post = data['chat']
+
+    #image algorithm
+    i = 0
+    stamps = []
+    while i < (len(data['chat'])-4):
+        if post[i:(i+4)] == "<img":
+            z = i
+            while post[z] != ">" and z < len(data['chat']):
+                z += 1
+            stamps.append((i, z))
+            i = z
+        i += 1
+
+    print(stamps)
+    i = len(stamps) - 1
+    r = []
+
+    print(post[stamps[0][1]])
+
+    while i >= 0:
+        r.append(post[(stamps[i][1] + 1):])
+        r.append(post[stamps[i][0]: (stamps[i][1] + 1)])
+        post = post[:stamps[i][0]]
+        i -= 1
+    
+    while "" in r:
+        r.remove("")
+
+    r.reverse()    
+
     u_name = data["username"]
 
 
@@ -180,4 +211,4 @@ def upload():
     return redirect("/")
     
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    socketio.run(app)
