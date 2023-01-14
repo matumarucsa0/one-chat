@@ -73,6 +73,8 @@
             var profilepic = document.createElement("img")
             profilepic.setAttribute("style","max-width: 100%; max-height: 100%; border-radius: 50%;;")
             profilepic.setAttribute("src", "/static/profile-pic/"+data['profile_pic']) //fix?
+            profilepic.setAttribute("width", "75")
+            profilepic.setAttribute("height", "75")
             profilepicb.appendChild(profilepic)
             message.appendChild(profilepicb)            
             
