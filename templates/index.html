@@ -36,11 +36,12 @@
             <div id="anchor"></div>
         </div>
 
-        
-        <div class="box">
-            <div contenteditable id="post-content" class="text-input"></div>
-            <button>emo</button>
-            <button id="submit-button">SUBMIT</button>
+        <div class="send" id="send">
+            <div class="box" id="box">
+                <div contenteditable id="post-content" class="text-input"></div>
+                <button>emo</button>
+                <button id="submit-button">SUBMIT</button>
+            </div>
         </div>
     </div>
 </body>
@@ -142,19 +143,54 @@
             var isImage = false;
             for (var i = 0; i < items.length; i++) {
                 if (items[i].type.indexOf('image') === 0) {
-                // This is an image
-                console.log("IMAGE")
-                var imageFile = items[i].getAsFile();
-                var reader = new FileReader();
-                reader.onload = function(event) {
-                    var img = new Image();
-                    img.src = event.target.result;
-                    document.getElementById('post-content').appendChild(img);
-                };
-                reader.readAsDataURL(imageFile);
-                isImage = true;
-                break;
-                }
+                    // This is an image
+                    console.log("IMAGE")
+                    
+                    if (document.getElementById("attach") == null){
+                        var imageFile = items[i].getAsFile();
+                        var reader = new FileReader();
+                        reader.onload = function(event) {
+                            var img = new Image();
+                            img.src = event.target.result;
+                            img.setAttribute("class", "image-attachment")
+                            
+                            //change the messages size
+                            document.getElementById("massage_box").setAttribute("style", "height: 53vh;")
+                            
+
+                            //create attachment menu
+                            var d  = document.createElement('div')
+                            d.setAttribute('class', 'image-attachment-box')
+                            d.setAttribute('id', 'attach')
+                            document.getElementById("send").insertBefore(d, document.getElementById("box"))
+                            d.appendChild(img)
+
+                            //scroll down after the box creation
+                            var anchor = document.getElementById("anchor")
+                            anchor.scrollIntoView(true)
+
+                            //create close button
+                            var close = document.createElement("button")
+                            close.setAttribute("id", "close-button")
+                            close.innerHTML = "close"
+                            d.appendChild(close)
+                            close.addEventListener("click", function () {
+                                d.remove()
+                                document.getElementById("massage_box").setAttribute("style", "")
+                            })
+                        };
+                    }
+                    else{
+                        alert("Only one image")
+                    }
+
+                    
+                    reader.readAsDataURL(imageFile);
+                    isImage = true;
+                    break;
+                    }
+                    
+                    
             }
             if (!isImage) {
                 console.log("txt")

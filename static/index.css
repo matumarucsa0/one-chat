@@ -40,16 +40,37 @@ body{
     outline: none;
 }
 
-
+.send{
+    width: 600px;
+    display: grid;
+    margin: 0 auto;
+}
 
 .box{
-    
-    width: 550px;
-    margin: 0 auto;
-    
+    width: 600px;
     display: grid;
     grid-template-columns: 450px 50px 100px;
-    
+}
+
+
+.image-attachment-box{
+    width: 600px;
+    height: 35vh;
+    background-color: rgb(64, 68, 75);
+}
+.image-attachment{
+    max-width: 300px;
+    max-height: 300px;
+    display: block;
+    margin: 0 auto;
+    margin-top: 10px;
+}
+
+#close-button{
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    right: 0;
 }
 
 ::-webkit-scrollbar{
