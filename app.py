@@ -4,8 +4,10 @@ import sqlite3
 from flask_socketio import SocketIO, emit
 from datetime import datetime
 import os
+import base64
+import random
 
-from flask_ngrok import run_with_ngrok
+
 
 app = Flask(__name__)
 
@@ -16,7 +18,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app)
+socketio = SocketIO(app, max_http_buffer_size = 1000000000)
 
 @app.after_request
 def after_request(response):
@@ -35,9 +37,18 @@ def handle_(data):
     time = datetime.now().strftime('%m/%d/%Y %H:%M:%S')
 
     
+    post = str(data['chat'])
 
-    post = data['chat']
+    #remove &nbsp;
+    
+    while True:
+        post = post.replace("&nbsp;", " ")
 
+        if "&nbsp;" not in post:
+            break
+
+
+    #DOESNT WORK UNTIL EMOTES ARE ADDED
     #image algorithm
     i = 0
     stamps = []
@@ -70,12 +81,28 @@ def handle_(data):
     r = ";,;".join(r)
     if len(r) == 0:
         r = post
-    conn.execute(f"INSERT INTO posts (post, date, username, user_id) VALUES ('{r}', '{time}', '{data['username']}', {data['user_id']})")
+
+    #checking for attached images
+    try:
+        
+        image_removed_base64 = str(data['attach']).removeprefix("data:image/png;base64,")
+        image_id = str(random.randint(100000000, 999999999))
+
+        r = f'[alt--]/{image_id}/' + r
+
+        imgdata = base64.b64decode(image_removed_base64)
+        with open(f"C:\\Users\\Matus\\Desktop\\one-chat\\static\\chat_images\\{image_id}.jpg", "wb") as f:
+            f.write(imgdata)
+    except:
+        pass
+
+
+    # add to post database
+    conn.execute(f"INSERT INTO posts (post, date, username, user_id) VALUES ('{str(r)}', '{time}', '{data['username']}', {data['user_id']})")
     conn.commit()
 
+    #emiting the message to connected clients
     u_name = data["username"]
-
-
     emit("massage",{'chat':data['chat'], 'user': f"{u_name} - {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic']}, broadcast=True)
 
 
@@ -84,18 +111,27 @@ def index():
     try:
         user_id = session["user_id"]
         username, profile_pic = conn.execute(f"SELECT username, profile_pic FROM users WHERE id={user_id}").fetchall()[0]
-
-        
         
         messages = conn.execute("SELECT * FROM posts;").fetchall()
         
         r = []
         # !!! LOW EFFICIENCY
+        image_id = ""
         for x in messages:
             x = list(x)
-            x[0] = x[0].split(';,;')
-            z = x + [conn.execute(f"SELECT profile_pic FROM users WHERE id={x[3]}").fetchall()[0][0]]
-            r.append(z)
+            #check if image attachment is present
+            if x[0][0:7] == "[alt--]":
+                image_id = x[0][8:17]
+                x[0] = x[0][18:]
+            x[0] = x[0].split(';,;') #splits message for emotes
+            z = x + [conn.execute(f"SELECT profile_pic FROM users WHERE id={x[3]}").fetchall()[0][0]] #adds profile picture
+            
+            if len(image_id) > 1:
+                z.append(image_id)
+            
+            r.append(z) #adds to list ready to be sent
+            #normal len = 5 special len 6
+            image_id = ""
             
 
         

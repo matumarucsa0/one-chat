@@ -10,17 +10,27 @@
 
     
 </head>
-<body>
-    
+<body onload="anchor.scrollIntoView(true)">
+    <div class="account">
+        <a href="/t">
+            <img style="max-height: 50px; max-width: 50px; margin-top: 15px; margin-right: 35px;" src="https://icon2.cleanpng.com/20180401/huw/kisspng-user-profile-computer-icons-clip-art-profile-5ac092f6be0823.5326777215225699747784.jpg">
+        </a>
+    </div>
     <div class="main-">
-        <div class="massages" id="massage_box">
+        <div class="messages" id="massage_box">
             {% for message in messages %}
                 <div class="message">
                     <div class="emote-container">
                         <img width="75" height="75" style=" max-width: 100%; max-height: 100%; border-radius: 50%;" src="/static/profile-pic/{{message[4]}}">
                     </div>
                     <div>
+                        
                         <p class="text-top">{{message[2]}}  {{message[1]}}</p>
+                        
+                        {% if message|length > 5 %}
+                        <img style="max-width: 300px; max-height: 300px" src="/static/chat_images/{{message[5]}}.jpg">
+                        {% endif %}
+
                         <p class="text-bottom">
                             {%for content in message[0]%}
                                 {% if "img--" in content %}
@@ -49,6 +59,34 @@
 <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
     <script type="text/javascript" src="//cdn.socket.io/4.4.1/socket.io.min.js"></script>
     <script>
+        function resizeImage(base64Str) {
+            var img = new Image();
+            img.src = base64Str;
+            var canvas = document.createElement('canvas');
+            var MAX_WIDTH = 400;
+            var MAX_HEIGHT = 350;
+            var width = img.width;
+            var height = img.height;
+
+            if (width > height) {
+            if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+            }
+            } else {
+            if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+            }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            return canvas.toDataURL();
+        }
+
+
         var user = "{{username}}"
         var user_id = "{{user_id}}"
 
@@ -56,6 +94,7 @@
         socket.on('connect', function() {
             socket.emit('my event', {data: 'I\'m connected!', name:user});
         });
+
         //scrooll
         var anchor = document.getElementById("anchor")
         anchor.scrollIntoView(true)
@@ -102,6 +141,9 @@
             console.log(message)
             console.log(anchor)
             box.insertBefore(message, anchor);
+
+            //scroll down
+            anchor.scrollIntoView(true)
         })
 
         //send massage
@@ -113,7 +155,7 @@
             if (val_e.innerHTML != ""){
                 document.execCommand('removeFormat', false, null);
                 
-                socket.emit("post--",{username: user, user_id : user_id, chat : val_e.innerHTML});
+                socket.emit("post--",{username: user, user_id : user_id, chat : val_e.innerHTML, profile_pic : "{{profile_pic}}"});
                 val_e.innerHTML = "";
                 val_e.focus()
             }
@@ -123,20 +165,38 @@
             
             if (event.keyCode == 13){
                 event.preventDefault()
-                if (val_e.innerHTML != ""){
-                    socket.emit("post--",{username: user, user_id : user_id, chat : val_e.innerHTML, profile_pic : "{{profile_pic}}"});
+                
+                
+                if (val_e.innerHTML != "" || document.getElementById("attach") != null) {
+                    //check if image is in attachments
+                    if (document.getElementById("attach") != null){
+
+                        
+
+                        
+                        var img_attach = document.getElementById("image-attachment").getAttribute("src")
+                        img_attach = resizeImage(img_attach)
+
+                        socket.emit("post--",{attach: img_attach,username: user, user_id : user_id, chat : val_e.innerHTML, profile_pic : "{{profile_pic}}"});
+                        document.getElementById("attach").remove()
+                        document.getElementById("massage_box").setAttribute("style", "")
+                    }
+                    else{
+                        console.log("no-img")
+                        socket.emit("post--",{username: user, user_id : user_id, chat : val_e.innerHTML, profile_pic : "{{profile_pic}}"});
+                    }
+                    
                     val_e.innerHTML = "";
                     val_e.focus()
-                }x
+                }
                 
             } 
         })
         
         
-
+        // paste image handeling
         const chatInput = document.getElementById('post-content');
 
-        
         chatInput.addEventListener('paste', function(e) {
             e.preventDefault();
             var items = (e.clipboardData || e.originalEvent.clipboardData).items;
@@ -153,9 +213,10 @@
                             var img = new Image();
                             img.src = event.target.result;
                             img.setAttribute("class", "image-attachment")
+                            img.setAttribute("id", "image-attachment")
                             
                             //change the messages size
-                            document.getElementById("massage_box").setAttribute("style", "height: 53vh;")
+                            document.getElementById("massage_box").setAttribute("style", "height: 51vh;")
                             
 
                             //create attachment menu
@@ -177,6 +238,7 @@
                             close.addEventListener("click", function () {
                                 d.remove()
                                 document.getElementById("massage_box").setAttribute("style", "")
+                                val_e.focus()
                             })
                         };
                     }
