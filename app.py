@@ -188,7 +188,6 @@ def login():
             
         # Redirect user to home page
             
-        
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
@@ -231,7 +230,9 @@ def reg():
 
 @app.route("/t", methods=["GET"])
 def f():
-    return render_template("profile.html")
+
+    user_data = conn.execute(f"SELECT * FROM users WHERE id={session['user_id']}").fetchall()[0]
+    return render_template("profile.html", user_data = user_data)
 
 @app.route("/profile-change", methods=["POST"])
 def upload():

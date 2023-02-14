@@ -4,12 +4,26 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/profile_managment.css">
     <title>Document</title>
 </head>
 <body>
-    <form action="/profile-change" method="post" enctype=multipart/form-data>
-        <input type="file" name="file">
-        <input type="submit">
-    </form>
+    <div class="main-box">
+        <form action="/profile-change" method="post" enctype=multipart/form-data>
+            <div class="margin"></div>
+            <input id="file" type="file" name="file" style="display: none;">
+            <label for="file" class="label-profile">
+                <img class="profile-picture" src="/static/profile-pic/{{user_data[4]}}">
+            </label>
+            <p>username</p>
+            <input class="input" value="{{user_data[1]}}">
+            <p>email</p>
+            <input class="input" value="{{user_data[3]}}">
+            <p>password</p>
+            <input value="{{user_data[2]}}" class="input" type="password">
+            
+            <input type="submit">
+        </form>
+    </div>
 </body>
 </html>

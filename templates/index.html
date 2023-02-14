@@ -6,11 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/index.css">
     <title>Home</title>
-    <link type="stylesheet" rel="/static/index.css">
+    
 
     
 </head>
-<body onload="anchor.scrollIntoView(true)">
+<body onload="document.getElementById('anchor').scrollIntoView(true)">
     <div class="account">
         <a href="/t">
             <img style="max-height: 50px; max-width: 50px; margin-top: 15px; margin-right: 35px;" src="https://icon2.cleanpng.com/20180401/huw/kisspng-user-profile-computer-icons-clip-art-profile-5ac092f6be0823.5326777215225699747784.jpg">
@@ -226,6 +226,9 @@
                             document.getElementById("send").insertBefore(d, document.getElementById("box"))
                             d.appendChild(img)
 
+                            //change the radius
+                            document.getElementById("post-content").setAttribute("style", "border-top-right-radius: 0; border-top-left-radius: 0;")
+
                             //scroll down after the box creation
                             var anchor = document.getElementById("anchor")
                             anchor.scrollIntoView(true)
@@ -237,6 +240,7 @@
                             d.appendChild(close)
                             close.addEventListener("click", function () {
                                 d.remove()
+                                document.getElementById("post-content").setAttribute("style", "")
                                 document.getElementById("massage_box").setAttribute("style", "")
                                 val_e.focus()
                             })

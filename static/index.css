@@ -60,24 +60,38 @@ body{
 
 
 .image-attachment-box{
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+    position: relative;
     width: 600px;
     height: 37vh;
     background-color: rgb(64, 68, 75);
 }
+
 .image-attachment{
     max-width: 250px;
     max-height: 175px;
     display: block;
     margin: 0 auto;
     margin-top: 10px;
-    position: relative;
+    
 }
 
+
 #close-button{
+    display: none;
     position: absolute;
     z-index: 1;
-    top: 0;
-    right: 0;
+    top: 10px;
+    right: 175px;
+}
+
+.image-attachment:hover + #close-button{
+    display: block;
+}
+
+#close-button:hover{
+    display: block;
 }
 
 ::-webkit-scrollbar{
