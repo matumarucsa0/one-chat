@@ -1,16 +1,14 @@
+# CURRENT #
+Profile managment gui and backend 
+emote button
+Add a lot of transition animations
 
-change the format of saving images in the database // ?
-Add a lot of transition animations // later
-emote button // prio
-Gifs //#
-Message editing //#
-Profile managment gui and backend ##
-remove submit button?
-Transition animations // later
+# LATER #
+Gifs
+Message editing
+coursor correction after paste event
 
-#images
-
-add image break in the image container // ?
-
-fix image button - 
-Redesign image algorithm// ?
+# IDK YET #
+add image break in the image container
+Redesign image algorithm
+change the format of saving images in the database
