@@ -1,64 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/index.css">
-    <title>Home</title>
-    
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/static/index.css">
+        <title>Home</title>
+        
 
-    
-</head>
-<body onload="document.getElementById('anchor').scrollIntoView(true)">
-    <div class="account">
-        <a href="/t">
-            <img style="max-height: 50px; max-width: 50px; margin-top: 15px; margin-right: 35px;" src="https://icon2.cleanpng.com/20180401/huw/kisspng-user-profile-computer-icons-clip-art-profile-5ac092f6be0823.5326777215225699747784.jpg">
-        </a>
-    </div>
-    <div class="main-">
-        <div class="messages" id="massage_box">
-            {% for message in messages %}
-                <div class="message">
-                    <div class="emote-container">
-                        <img width="75" height="75" style=" max-width: 100%; max-height: 100%; border-radius: 50%;" src="/static/profile-pic/{{message[4]}}">
-                    </div>
-                    <div>
-                        
-                        <p class="text-top">{{message[2]}}  {{message[1]}}</p>
-                        
-                        {% if message|length > 5 %}
-                        <img style="max-width: 300px; max-height: 300px" src="/static/chat_images/{{message[5]}}.jpg">
-                        {% endif %}
-
-                        <p class="text-bottom">
-                            {%for content in message[0]%}
-                                {% if "img--" in content %}
-                                        <img style="max-width: 300px; max-height: 300px" src="{{content[5:]}}">
-                                {% else %}
-                                    <p>{{content}}</p>
-                                {% endif %}
-                            {% endfor %}
-                        </p>
-                    </div>
-                </div>
-            {% endfor %}
-            <div id="anchor"></div>
+        
+    </head>
+    <script>
+        function on_load(){
+            console.log("loaded")
+            document.getElementById('anchor').scrollIntoView(true);
+            document.getElementById('overlay').style.display = "none";
+        }
+    </script>
+    <body onload="on_load()">
+        <div id="overlay"></div>
+        <div class="account">
+            <a href="/t">
+                <img style="max-height: 50px; max-width: 50px; margin-top: 15px; margin-right: 35px;" src="https://icon2.cleanpng.com/20180401/huw/kisspng-user-profile-computer-icons-clip-art-profile-5ac092f6be0823.5326777215225699747784.jpg">
+            </a>
         </div>
+        <div class="main-">
+            <div class="messages" id="massage_box">
+                {% for message in messages %}
+                    {% if message["status"] =="child" %}
+                        <div class="message" style="margin-bottom: 0;" child="">
+                            <div></div>
+                            {% if "image_id" in message %}
+                                        <img style="max-width: 300px; max-height: 300px; margin-top: 4px; margin-bottom: 4px;" src="/static/chat_images/{{message['image_id']}}.jpg">
+                            {% else %}
+                                <div class="text-bottom" style="margin-top: 4px;">
+                                    
+                                        {%for content in message["message_content"]%}
+                                            {% if "img--" in content %}
+                                                <img style="max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
+                                            {% else %}
+                                                <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
+                                            {% endif %}
+                                        {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        {% if message["status"] == "parent" %}
+                            <div class="message" style="margin-bottom: 0;">
+                                <div class="emote-container">
+                                    <img style=" width: 100%; height: 100%; border-radius: 50%;" src="/static/profile-pic/{{message['profile_picture']}}">
+                                </div>
+                                <div>
+                                    <p class="text-top">{{message["username"]}}  {{message["date"]}}</p>
+                                    
+                                    {% if "image_id" in message %}
+                                        <img style="max-width: 300px; max-height: 300px" src="/static/chat_images/{{message['image_id']}}.jpg">
+                                    {% else %}
+                                        <div class="text-bottom">
+                                            {%for content in message["message_content"]%}
+                                                {% if "img--" in content %}
+                                                        <img style="max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
+                                                {% else %}
+                                                    <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="message">
+                                <div class="emote-container">
+                                    <img style=" width: 100%; height: 100%; border-radius: 50%;" src="/static/profile-pic/{{message['profile_picture']}}">
+                                </div>
+                                <div>
+                                    <p class="text-top">{{message["username"]}}  {{message["date"]}}</p>
+                                    
+                                    {% if "image_id" in message %}
+                                        <img style="max-width: 300px; max-height: 300px" src="/static/chat_images/{{message['image_id']}}.jpg">
+                                    {% else %}
+                                        <div class="text-bottom">
+                                            {%for content in message["message_content"]%}
+                                                {% if "img--" in content %}
+                                                        <img style="max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
+                                                {% else %}
+                                                    <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
 
-        <div class="send" id="send">
-            <div class="box" id="box">
-                <div contenteditable id="post-content" class="text-input"></div>
-                <button>emo</button>
-                <button id="submit-button">SUBMIT</button>
+                
+
+                <div id="anchor"></div>
+            </div>
+
+            <div class="send" id="send">
+                <div class="box" id="box">
+                    <div contenteditable id="post-content" class="text-input" style="max-width: 480px;"></div>
+                    <div class="dropup">
+                        <button onclick="emote_container()" class="dropbtn">Emotes</button>
+                        <div class="dropup-content" id="dropup-content" style="display: none;">
+                            {% for emote in emotes %}
+                                <li><img onclick="add_emote('{{emote}}')" src="/static/emotes/{{emote}}" style="max-width: 50px; max-height: 50px;"></li>
+                            {% endfor %}
+                        </div>
+                      </div>
+                    
+                </div>
             </div>
         </div>
-    </div>
-</body>
+    </body>
 
-<script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
     <script type="text/javascript" src="//cdn.socket.io/4.4.1/socket.io.min.js"></script>
     <script>
+        
+
+        function emote_container(){
+            var dropup =  document.getElementById("dropup-content")
+            if (dropup.style.display == "none"){
+                dropup.style.display = "block"
+            }
+            else{
+                dropup.style.display = "none"
+            }
+        }
+
+        function add_emote(emote_id){
+            document.getElementById("post-content").innerHTML += "<img src='/static/emotes/"+emote_id+"'>&nbsp;"
+        }
+
+
+
         function resizeImage(base64Str) {
             var img = new Image();
             img.src = base64Str;
@@ -101,65 +181,232 @@
 
         //on recieved massage
         socket.on('massage', function(data){ 
-            console.log(data)
-            var box = document.getElementById("massage_box")
+            var verifier = true
 
-            var message = document.createElement('div')
-            message.setAttribute("class", "message")
-
-            //profile pic
-            var profilepicb = document.createElement("div")
-            profilepicb.setAttribute("class", "emote-container")
-            var profilepic = document.createElement("img")
-            profilepic.setAttribute("style","max-width: 100%; max-height: 100%; border-radius: 50%;;")
-            profilepic.setAttribute("src", "/static/profile-pic/"+data['profile_pic']) //fix?
-            profilepic.setAttribute("width", "75")
-            profilepic.setAttribute("height", "75")
-            profilepicb.appendChild(profilepic)
-            message.appendChild(profilepicb)            
+            // if last message is child checks if this message can be child -> appends itself as ""/child/parent    
+            if (Array.from(document.getElementsByClassName("message")).slice(-1)[0].hasAttribute("child")){
+                var ar = Array.from(document.getElementsByClassName("message")).reverse()
+                let index = 0
+                
+                while (index < ar.length){
+                    
+                    if (!ar[index].hasAttribute("child")){ 
+                        var text_top_old = ar[index].getElementsByClassName("text-top")[0].innerHTML.split(" ")
+                        var text_top_new = data['user'].split(" ")
+                        console.log(text_top_new)
+                        console.log(text_top_old)
+                        
+                        if (text_top_old[0] == text_top_new[0] &&
+                            text_top_old[1] == text_top_new[1] && //create message as child
+                            text_top_old[2].slice(0, 5) == text_top_new[2].slice(0, 5)){
+                                console.log("execution")
+                                var box = document.getElementById("massage_box")
             
-            //text
-            var d = document.createElement("div")
+                                var message = document.createElement('div')
+                                message.setAttribute("class", "message")
+                                message.setAttribute("style", "margin-bottom: 0;")
+                                message.setAttribute("child", "")
 
+                                message.appendChild(document.createElement("div"))
+                                
+                                if ("img_id" in data){ // attachment
+                    
+                                    var i = document.createElement("img")
+                                    i.setAttribute("style", "max-width: 300px; max-height: 300px; margin-top: 4px; margin-bottom: 4px;")
+                                    i.setAttribute("src", "/static/chat_images/"+ data["img_id"] +".jpg")
+                                    message.appendChild(i)
 
-            var name = document.createElement("p")
-            name.innerHTML = data['user']
-            name.setAttribute("class", "text-top")
-            d.appendChild(name)
+                                    i.addEventListener("load", function (){
+                                        document.getElementById("anchor").scrollIntoView(true)
+                                    })
+                                }
+                                else{
+                                    var div = document.createElement("div")
+                                    div.setAttribute("class", "text-bottom")
+                                    div.setAttribute("style", "margin-top: 4px;")
 
-            var mas = document.createElement('p')
-            mas.setAttribute("class", "text-bottom")
-            mas.innerHTML = data['chat']
-            d.appendChild(mas)
+                                    var message_array = data['chat']
+                                    i = 0
+                                    while (i < message_array.length){
+                                        if ( message_array[i].includes("img--")){
+                                            
+                                            var img_mes = document.createElement("img")
+                                            img_mes.setAttribute("src", "/static/emotes/"+message_array[i].slice(5))
+                                            img_mes.setAttribute("style", "max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;")
+                                            div.appendChild(img_mes)
+                                        }
+                                        else{
+                                            var p_mes = document.createElement("p")
+                                            p_mes.setAttribute("style", "display: inline-block; margin-top: 0px; margin-bottom: 0px; ")
+                                            p_mes.innerHTML = message_array[i]
+                                            div.appendChild(p_mes)
+                                        }
+                                        i+=1
+                                    }
+                                    message.appendChild(div)
+                                }
+                                
+                                var anchor = document.getElementById("anchor")
             
-            
+                                box.insertBefore(message, anchor);
+                                verifier = false
+                            }
 
-            message.appendChild(d)
-            
-            
-            var anchor = document.getElementById("anchor")
-            console.log(message)
-            console.log(anchor)
-            box.insertBefore(message, anchor);
 
+                        break
+                    }
+                index+=1
+                }
+            }   //if last element is not a child
+            else{
+                console.log(Array.from(document.getElementsByClassName("message")).slice(-1)[0].getElementsByClassName("text-top")[0].innerHTML)
+                var text_top_old = Array.from(document.getElementsByClassName("message")).slice(-1)[0].getElementsByClassName("text-top")[0].innerHTML.split(" ")
+                var text_top_new = data['user'].split(" ")
+                
+                if (text_top_old[0] == text_top_new[0] && //create message as child
+                            text_top_old[1] == text_top_new[1] &&
+                            text_top_old[2].slice(0, 5) == text_top_new[2].slice(0, 5)){
+                                Array.from(document.getElementsByClassName("message")).slice(-1)[0].setAttribute("style", "margin-bottom: 0;")
+
+                                var box = document.getElementById("massage_box")
+            
+                                var message = document.createElement('div')
+                                message.setAttribute("class", "message")
+                                message.setAttribute("child", "")
+                                message.setAttribute("style", "margin-bottom: 0;")
+
+                                message.appendChild(document.createElement("div"))
+
+                                if ("img_id" in data){ // attachment
+                    
+                                    var i = document.createElement("img")
+                                    i.setAttribute("style", "max-width: 300px; max-height: 300px; margin-top: 4px; margin-bottom: 4px;")
+                                    i.setAttribute("src", "/static/chat_images/"+ data["img_id"] +".jpg")
+                                    message.appendChild(i)
+
+                                    i.addEventListener("load", function (){
+                                        document.getElementById("anchor").scrollIntoView(true)
+                                    })
+                                }
+                                else{
+                                    var div = document.createElement("div")
+                                    div.setAttribute("class", "text-bottom")
+                                    div.setAttribute("style", "margin-top: 4px;")
+
+                                    var message_array = data['chat']
+                                    i = 0
+                                    while (i < message_array.length){
+                                        if ( message_array[i].includes("img--")){
+                                            
+                                            var img_mes = document.createElement("img")
+                                            img_mes.setAttribute("src", "/static/emotes/"+message_array[i].slice(5))
+                                            img_mes.setAttribute("style", "max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;")
+                                            div.appendChild(img_mes)
+                                        }
+                                        else{
+                                            var p_mes = document.createElement("p")
+                                            p_mes.setAttribute("style", "display: inline-block; margin-top: 0px; margin-bottom: 0px; ")
+                                            p_mes.innerHTML = message_array[i]
+                                            div.appendChild(p_mes)
+                                        }
+                                        i+=1
+                                    }
+                                    message.appendChild(div)
+                                }
+                                
+                                var anchor = document.getElementById("anchor")
+            
+                                box.insertBefore(message, anchor);
+                                verifier = false
+                            }
+            }
+            //NORMAL ELEMENT
+            if (verifier){
+
+                
+                var box = document.getElementById("massage_box")
+                
+                var message = document.createElement('div')
+                message.setAttribute("class", "message")
+
+                //profile pic
+                var profilepicb = document.createElement("div")
+                profilepicb.setAttribute("class", "emote-container")
+                var profilepic = document.createElement("img")
+                profilepic.setAttribute("style","max-width: 100%; max-height: 100%; border-radius: 50%;;")
+                profilepic.setAttribute("src", "/static/profile-pic/"+data['profile_pic']) //fix?
+                profilepic.setAttribute("width", "75")
+                profilepic.setAttribute("height", "75")
+                profilepicb.appendChild(profilepic)
+                message.appendChild(profilepicb)            
+                
+                //text
+                var d = document.createElement("div")
+
+
+                var name = document.createElement("p")
+                name.innerHTML = data['user']
+                name.setAttribute("class", "text-top")
+                d.appendChild(name)
+
+                if ("img_id" in data){ // attachment
+                    
+                    var i = document.createElement("img")
+                    i.setAttribute("style", "max-width: 300px; max-height: 300px")
+                    i.setAttribute("src", "/static/chat_images/"+ data["img_id"] +".jpg")
+                    d.appendChild(i)
+
+                    i.addEventListener("load", function (){
+                        document.getElementById("anchor").scrollIntoView(true)
+                    })
+                }
+                else{
+                    var text_bottom = document.createElement("div")
+                    text_bottom.setAttribute("class", "text-bottom")
+
+                    var mas = document.createElement('div')
+                    mas.setAttribute("class", "text-bottom")
+                    
+                    var message_array = data['chat']
+                
+                    i = 0
+                    while (i < message_array.length){
+                        if ( message_array[i].includes("img--")){
+                            
+                            var img_mes = document.createElement("img")
+                            img_mes.setAttribute("src", "/static/emotes/"+message_array[i].slice(5))
+                            img_mes.setAttribute("style", "max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;")
+                            text_bottom.appendChild(img_mes)
+                        }
+                        else{
+                            var p_mes = document.createElement("p")
+                            p_mes.setAttribute("style", "display: inline-block; margin-top: 0px;")
+                            p_mes.innerHTML = message_array[i]
+                            text_bottom.appendChild(p_mes)
+                        }
+                        i+=1
+                    }
+                    d.appendChild(text_bottom)
+                }
+                //message data
+                
+                message.appendChild(d)
+                
+                
+                var anchor = document.getElementById("anchor")
+                
+                box.insertBefore(message, anchor);
+            }
             //scroll down
             anchor.scrollIntoView(true)
         })
 
         //send massage
-        const element = document.getElementById("submit-button");
+        
         val_e = document.getElementById("post-content")
         val_e.focus()
 
-        element.addEventListener("click", function() {
-            if (val_e.innerHTML != ""){
-                document.execCommand('removeFormat', false, null);
-                
-                socket.emit("post--",{username: user, user_id : user_id, chat : val_e.innerHTML, profile_pic : "{{profile_pic}}"});
-                val_e.innerHTML = "";
-                val_e.focus()
-            }
-        });
+        
 
         document.addEventListener("keydown", function(event){
             
@@ -182,7 +429,7 @@
                         document.getElementById("massage_box").setAttribute("style", "")
                     }
                     else{
-                        console.log("no-img")
+                        
                         socket.emit("post--",{username: user, user_id : user_id, chat : val_e.innerHTML, profile_pic : "{{profile_pic}}"});
                     }
                     
@@ -193,6 +440,20 @@
             } 
         })
         
+        function insertTextAtCursor(text) {
+            var sel, range, textNode;
+            if (window.getSelection) {
+                sel = window.getSelection();
+                if (sel.getRangeAt && sel.rangeCount) {
+                range = sel.getRangeAt(0);
+                textNode = document.createTextNode(text);
+                range.insertNode(textNode);
+                range.setStartAfter(textNode);
+                sel.removeAllRanges();
+                sel.addRange(range);
+                }
+            }
+        }
         
         // paste image handeling
         const chatInput = document.getElementById('post-content');
@@ -204,7 +465,7 @@
             for (var i = 0; i < items.length; i++) {
                 if (items[i].type.indexOf('image') === 0) {
                     // This is an image
-                    console.log("IMAGE")
+                    
                     
                     if (document.getElementById("attach") == null){
                         var imageFile = items[i].getAsFile();
@@ -259,13 +520,13 @@
                     
             }
             if (!isImage) {
-                console.log("txt")
+                
                 // Insert the pasted text as plain text
                 const text = event.clipboardData.getData('text/plain');
-                chatInput.textContent = text;
+                insertTextAtCursor(text)
             }
             });
- 
+
     </script>
     
 </html>

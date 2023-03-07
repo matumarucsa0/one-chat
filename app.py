@@ -7,7 +7,7 @@ import os
 import base64
 import random
 
-
+PATH = "C:\\Users\\admin\\OneDrive\\Počítač\\one-chat"
 
 app = Flask(__name__)
 
@@ -34,7 +34,8 @@ def after_request(response):
 
 @socketio.on("post--")
 def handle_(data):
-    time = datetime.now().strftime('%m/%d/%Y %H:%M:%S')
+    attach = False
+    time = datetime.now().strftime('%m/%d/%Y %H:%M')
 
     
     post = str(data['chat'])
@@ -69,18 +70,25 @@ def handle_(data):
 
     while i >= 0:
         r.append(post[(stamps[i][1] + 1):])
-        x = str(post[stamps[i][0]: (stamps[i][1] + 1)]).removeprefix('<img src="').removesuffix('">')
+        x = str(post[stamps[i][0]: (stamps[i][1] + 1)]).removeprefix('<img src="/static/emotes/').removesuffix('">')
         r.append(f"img--{x}")
         post = post[:stamps[i][0]]
         i -= 1
     
+    if len(post) > 0:
+        r.append(post)
+
     while "" in r:
         r.remove("")
 
     r.reverse()
+
+    send = r
+
     r = ";,;".join(r)
     if len(r) == 0:
         r = post
+        send = post
 
     #checking for attached images
     try:
@@ -88,57 +96,101 @@ def handle_(data):
         image_removed_base64 = str(data['attach']).removeprefix("data:image/png;base64,")
         image_id = str(random.randint(100000000, 999999999))
 
-        r = f'[alt--]/{image_id}/' + r
+        attach_text = f'[alt--]/{image_id}/'
 
         imgdata = base64.b64decode(image_removed_base64)
-        with open(f"C:\\Users\\Matus\\Desktop\\one-chat\\static\\chat_images\\{image_id}.jpg", "wb") as f:
+        with open(PATH + f"\\static\\chat_images\\{image_id}.jpg", "wb") as f:
             f.write(imgdata)
+        
+        attach = True
     except:
         pass
 
 
     # add to post database
-    conn.execute(f"INSERT INTO posts (post, date, username, user_id) VALUES ('{str(r)}', '{time}', '{data['username']}', {data['user_id']})")
-    conn.commit()
+
 
     #emiting the message to connected clients
     u_name = data["username"]
-    emit("massage",{'chat':data['chat'], 'user': f"{u_name} - {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic']}, broadcast=True)
+
+
+
+    if attach:
+            conn.execute(f"INSERT INTO posts (post, date, username, user_id) VALUES ('{attach_text}', '{time}', '{data['username']}', {data['user_id']})")
+            conn.commit()
+            
+            emit("massage",{'chat':"", 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "img_id": image_id}, broadcast=True)
+            if send != "":
+                conn.execute(f"INSERT INTO posts (post, date, username, user_id) VALUES ('{str(r)}', '{time}', '{data['username']}', {data['user_id']})")
+                conn.commit()
+                emit("massage",{'chat':send, 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic']}, broadcast=True)
+            
+    else:
+        conn.execute(f"INSERT INTO posts (post, date, username, user_id) VALUES ('{str(r)}', '{time}', '{data['username']}', {data['user_id']})")
+        conn.commit()
+        emit("massage",{'chat':send, 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic']}, broadcast=True)
 
 
 @app.route("/", methods=["get", "post"])
 def index():
     try:
         user_id = session["user_id"]
-        username, profile_pic = conn.execute(f"SELECT username, profile_pic FROM users WHERE id={user_id}").fetchall()[0]
-        
-        messages = conn.execute("SELECT * FROM posts;").fetchall()
-        
-        r = []
-        # !!! LOW EFFICIENCY
-        image_id = ""
-        for x in messages:
-            x = list(x)
-            #check if image attachment is present
-            if x[0][0:7] == "[alt--]":
-                image_id = x[0][8:17]
-                x[0] = x[0][18:]
-            x[0] = x[0].split(';,;') #splits message for emotes
-            z = x + [conn.execute(f"SELECT profile_pic FROM users WHERE id={x[3]}").fetchall()[0][0]] #adds profile picture
-            
-            if len(image_id) > 1:
-                z.append(image_id)
-            
-            r.append(z) #adds to list ready to be sent
-            #normal len = 5 special len 6
-            image_id = ""
-            
-
-        
-        return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic,  messages = r)
-
     except:
         return redirect("/login")
+
+    username, profile_pic = conn.execute(f"SELECT username, profile_pic FROM users WHERE id={user_id}").fetchall()[0]
+    emotes = os.listdir(PATH + "\\static\\emotes")
+    messages = conn.execute("SELECT * FROM posts;").fetchall()
+    if len(messages) ==0:
+        return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic, emotes = emotes)
+
+    r = []
+    # !!! LOW EFFICIENCY
+    image_id = ""
+    tmp = ""
+    for x in messages:
+        ver = False
+        x = list(x)
+        if tmp == "":
+            pass
+        else:
+            date_old = tmp[1].split(" ")
+            date_new = x[1].split(" ")
+            
+            if date_old[0] == date_new[0] and date_old[1][:5] == date_new[1][:5] and tmp[2] == x[2]: # and x[0][0:7] != "[alt--]"
+                ver =True
+                if r[-1]["status"] != "child":
+                    r[-1]["status"] = "parent"
+        
+        #check if image attachment is present
+        if x[0][0:7] == "[alt--]":
+            image_id = x[0][8:17]
+            x[0] = x[0][18:]
+
+        tmp = x[:]
+
+        data = {
+            "message_content": x[0].split(';,;'),
+            "date": x[1],
+            "username": x[2],
+            "user_id": x[3],
+            "profile_picture": conn.execute(f"SELECT profile_pic FROM users WHERE id={x[3]}").fetchall()[0][0],
+        }
+
+        if len(image_id) > 1:
+            data["image_id"] = image_id
+
+        if ver:
+            data["status"] = "child"
+        else:
+            data["status"] = ""
+        r.append(data) 
+        
+        image_id = ""
+
+    return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic,  messages = r, emotes=emotes)
+
+    
 
 
 
@@ -242,11 +294,11 @@ def upload():
     
     #check if default png
     if current_profile_pic != "default.png":
-        os.remove(f"C:\\Users\\Matus\\Desktop\\one-chat\\static\\profile-pic\\{current_profile_pic}")
+        os.remove(PATH + f"\\static\\profile-pic\\{current_profile_pic}")
     # handle file
     file = request.files["file"]
     fileext = file.filename.split(".")[1]
-    file.save(f"C:\\Users\\Matus\\Desktop\\one-chat\\static\\profile-pic\\{str(session['user_id'])}.{fileext}")
+    file.save(PATH + f"\\static\\profile-pic\\{str(session['user_id'])}.{fileext}")
     
     #change path
     conn.execute(f"UPDATE users set profile_pic='{str(session['user_id'])}.{fileext}' WHERE id={user}")
@@ -255,4 +307,4 @@ def upload():
     return redirect("/")
     
 if __name__ == '__main__':
-    socketio.run(app, debug = True)
+    socketio.run(app, debug = True, allow_unsafe_werkzeug=True)

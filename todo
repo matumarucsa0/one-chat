@@ -1,14 +1,16 @@
 # CURRENT #
 Profile managment gui and backend 
-emote button
 Add a lot of transition animations
+no profile image if message is send shortly
+larger emotes if message contains no text
+fix images
 
 # LATER #
 Gifs
 Message editing
-coursor correction after paste event
+
 
 # IDK YET #
-add image break in the image container
+
 Redesign image algorithm
 change the format of saving images in the database
