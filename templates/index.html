@@ -121,7 +121,24 @@
     <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
     <script type="text/javascript" src="//cdn.socket.io/4.4.1/socket.io.min.js"></script>
     <script>
-        
+        const element = document.querySelector("#post-content");
+
+        // Create a new ResizeObserver
+        const resizeObserver = new ResizeObserver(entries => {
+        // Loop through the entries
+        entries.forEach(entry => {
+            // Log the new size of the element
+            document.getElementById("massage_box").setAttribute("style", "height: calc(90vh - "+entry.contentRect.height+"px);")
+            console.log(`${entry.contentRect.height}`);
+            document.getElementById('anchor').scrollIntoView(true);
+        });
+        });
+        if (element) {
+  // Observe the element
+  resizeObserver.observe(element);
+} else {
+  console.error('Element not found');
+}
 
         function emote_container(){
             var dropup =  document.getElementById("dropup-content")

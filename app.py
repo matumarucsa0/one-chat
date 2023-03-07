@@ -274,7 +274,7 @@ def reg():
         elif len(y) >= 2:
             return render_template("register.html", error = "This email is already used")
 
-        conn.execute(f"INSERT INTO users (username, password, email, profile_pic) VALUES('{username}', '{request.form.get('password')}', '{request.form.get('email')}', 'default.png')")
+        conn.execute(f"INSERT INTO users (username, password, email, profile_pic, about_me) VALUES('{username}', '{request.form.get('password')}', '{request.form.get('email')}', 'default.png', '')")
         conn.commit()
         return redirect("/login")
     else:
