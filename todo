@@ -1,13 +1,14 @@
 # CURRENT #
 Profile managment gui and backend 
 Add a lot of transition animations
-no profile image if message is send shortly
+
 larger emotes if message contains no text
 fix images
 
 # LATER #
 Gifs
 Message editing
+max-length of a word
 
 
 # IDK YET #

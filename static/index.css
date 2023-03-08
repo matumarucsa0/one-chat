@@ -59,6 +59,7 @@ body{
     width: 600px;
     display: grid;
     margin: 0 auto;
+    margin-top: 30px;
 }
 
 .box{
@@ -148,7 +149,7 @@ body{
     flex-direction: column-reverse;
     overflow-y: scroll;
     overflow-x: hidden;
-    height: calc(90vh - 43px);
+    height: calc(90vh - 73px);
 }
 
 
@@ -191,7 +192,7 @@ body{
 
 .text-bottom{
     margin: 0px;
-    height: 22px;
+    height: auto;
     margin-top: 9px;
 
 }

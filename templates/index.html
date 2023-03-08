@@ -39,7 +39,7 @@
                                             {% if "img--" in content %}
                                                 <img style="max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
                                             {% else %}
-                                                <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
+                                                <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; word-wrap: break-word;">{{content}}</p>
                                             {% endif %}
                                         {% endfor %}
                                 </div>
@@ -49,7 +49,7 @@
                         {% if message["status"] == "parent" %}
                             <div class="message" style="margin-bottom: 0;">
                                 <div class="emote-container">
-                                    <img style=" width: 100%; height: 100%; border-radius: 50%;" src="/static/profile-pic/{{message['profile_picture']}}">
+                                    <img style="width: 100%; height: 100%; border-radius: 50%;" src="/static/profile-pic/{{message['profile_picture']}}">
                                 </div>
                                 <div>
                                     <p class="text-top">{{message["username"]}}  {{message["date"]}}</p>
@@ -128,7 +128,7 @@
         // Loop through the entries
         entries.forEach(entry => {
             // Log the new size of the element
-            document.getElementById("massage_box").setAttribute("style", "height: calc(90vh - "+entry.contentRect.height+"px);")
+            document.getElementById("massage_box").setAttribute("style", "height: calc(90vh - "+(entry.contentRect.height + 30)+"px);")
             console.log(`${entry.contentRect.height}`);
             document.getElementById('anchor').scrollIntoView(true);
         });

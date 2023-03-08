@@ -11,7 +11,7 @@
     <h1 style="text-align: center; display: block; color: white;">EDIT PROFILE</h1>
 
     <div class="main-box">
-        <div style="padding-top: 10px; padding-bottom: 10px; background-color: '{{user_data[6]}}'; border-color: '{{user_data[6]}}';" id="banner">
+        <div style='padding-top: 10px; padding-bottom: 10px; background-color: {{user_data[6]}}; border-color: {{user_data[6]}};' id="banner">
             <img class="profile-picture-" src="/static/profile-pic/{{user_data[4]}}">
         </div>
         <br>
@@ -25,11 +25,11 @@
         </div>
     </div>
     <div class="profile-edit-box">
-        <form action="/t" method="post">
+        <form action="/profile-change" method="post" enctype=multipart/form-data>
             <p class="edit-desc">PROFILE PICTURE</p>
             <div class="br" style="margin: 0;"></div>
-            <button class="button-edit" onclick="document.getElementById('chenge-picture').click()">CHANGE</button>
-            <input id="chenge-picture" style="display: none;" type="file">
+            <button type="button" class="button-edit" onclick="document.getElementById('chenge-picture').click()">CHANGE</button>
+            <input id="chenge-picture" style="display: none;" type="file" name="file">
 
             <br><br><br><br>
 
@@ -37,57 +37,75 @@
             <div class="br" style="margin: 0;"></div>
             
             <div style="display: grid; grid-template-columns: 150px 50px; margin-top: 26px;">
-                <button onclick="document.getElementById('banner-color-input').click()" class="button-edit" style="border-top-right-radius: 0px; border-bottom-right-radius: 0px; margin-top: 0;">
+                <button type="button" onclick="color_select()" class="button-edit" style="border-top-right-radius: 0px; border-bottom-right-radius: 0px; margin-top: 0;">
                     CHANGE COLOR
                 </button>
-                <div class="color" id="color" style="background-color: '{{user_data[6]}}'; border: 2px #4F545C66 solid;"></div>
+                <div class="color" id="color" style="background-color: {{user_data[6]}}; border: 2px #4F545C66 solid;"></div>
             </div>
-            <input type="color" id="banner-color-input" style="display: none;" value="{{user_data[6]}}">
+            <input name="color" type="text" id="banner-color-input" style="display: none;" value="{{user_data[6]}}">
 
             <br><br><br><br>
 
             <p class="edit-desc">ABOUT ME</p>
             <div class="br" style="margin: 0;"></div>
-            <p class="about-text-input" id="about-text-input" contenteditable></p>
+            <p oninput="document.getElementById('about-me-submit').value = document.getElementById('about-text-input').innerHTML" class="about-text-input" id="about-text-input" contenteditable> {{user_data[5]}} </p>
+            <input style="display: none;" name="about-me" id="about-me-submit" type="text">
 
             <br><br>
             <div class="br" style="margin: 0;"></div>
             <br><br>
             
-            <button class="button-edit" style="height: 36px; width: 250px; font-size: 20px; margin: 0 auto;">SUBMIT CHANGES</button>
+            <button type="submit" class="button-edit" id="submit-button" style="height: 36px; width: 250px; font-size: 20px; margin: 0 auto;">SUBMIT CHANGES</button>
         </form>
     </div>
 </body>
 <script>
-    var initial_color = document.getElementById("banner-color-input").value
-    var  initial_about_me = document.getElementById("about-text-input").innerHTML
+    document.getElementById('about-me-submit').value = document.getElementById('about-text-input').innerHTML
+    var dont_ignore = true;
 
-    console.log(initial_color, initial_about_me)
-    window.addEventListener("beforeunload", function (event) {
+    function color_select(){
 
-        if (! (initial_color == document.getElementById("banner-color-input").value && initial_about_me == document.getElementById("about-text-input").innerHTML)){
-            event.preventDefault();
-            event.returnValue = "";
-            return "Are you sure you want to leave this site?";
-        }
-        
-        
-    });
-
-    function unload(){
-        alert("chesck")
-        if (initial_color == document.getElementById("color").value && initial_about_me == document.getElementById("about-text-input").innerHTML){
-            alert("Nothing changed, bye")
+        var color_input = document.getElementById("banner-color-input")
+        if (color_input.type == "color"){
+            val = color_input.value
+            color_input.setAttribute("type", "text")
+            color_input.value = val
         }
         else{
-            alert("Unsaved changes")
+            color_input.setAttribute("type", "color")
+            color_input.click()
         }
-        
     }
+
+    var initial_color = document.getElementById("banner-color-input").value
+    var  initial_about_me = document.getElementById("about-text-input").innerHTML
+    
+    document.getElementById("submit-button").addEventListener("click", function (){
+        dont_ignore = false;
+    })
+
+    window.addEventListener("beforeunload", function (event) {
+        console.log(event)
+        if (dont_ignore){
+            if (! (initial_color == document.getElementById("banner-color-input").value && initial_about_me == document.getElementById("about-text-input").innerHTML)){
+            event.preventDefault();
+            event.returnValue = "Are you sure you want to leave this site?";
+            return "Are you sure you want to leave this site?";
+            }
+            else{
+                console.log("L")
+            }
+        }});
+        
+
+        
+
+    
 
     document.getElementById("banner-color-input").addEventListener("input", function (){
         var color = document.getElementById("banner-color-input").value
         document.getElementById("color").style.backgroundColor = color
     })
+    
 </script>
 </html>

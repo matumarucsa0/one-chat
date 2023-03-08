@@ -289,7 +289,7 @@ def f():
 @app.route("/profile-change", methods=["POST"])
 def upload():
 
-    user = session['user_id']
+    """user = session['user_id']
     current_profile_pic = conn.execute(f"SELECT profile_pic FROM users WHERE id={user}").fetchall()[0][0]
     
     #check if default png
@@ -302,9 +302,16 @@ def upload():
     
     #change path
     conn.execute(f"UPDATE users set profile_pic='{str(session['user_id'])}.{fileext}' WHERE id={user}")
+    conn.commit()"""
+
+    print(request.files["file"].filename)
+    user_id = session["user_id"]
+    about_me = request.form.get("about-me")
+    banner_color = request.form.get("color")
+    conn.execute(f"UPDATE users SET about_me='{about_me}', banner_color='{banner_color}' WHERE id={user_id}")
     conn.commit()
 
-    return redirect("/")
+    return redirect("/t")
     
 if __name__ == '__main__':
     socketio.run(app, debug = True, allow_unsafe_werkzeug=True)
