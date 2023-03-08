@@ -274,7 +274,7 @@ def reg():
         elif len(y) >= 2:
             return render_template("register.html", error = "This email is already used")
 
-        conn.execute(f"INSERT INTO users (username, password, email, profile_pic, about_me) VALUES('{username}', '{request.form.get('password')}', '{request.form.get('email')}', 'default.png', '')")
+        conn.execute(f"INSERT INTO users (username, password, email, profile_pic, about_me, banner_color) VALUES('{username}', '{request.form.get('password')}', '{request.form.get('email')}', 'default.png', '', '#202225')")
         conn.commit()
         return redirect("/login")
     else:
@@ -283,7 +283,7 @@ def reg():
 @app.route("/t", methods=["GET"])
 def f():
 
-    user_data = conn.execute(f"SELECT * FROM users WHERE id={session['user_id']}").fetchall()[0]
+    user_data = conn.execute(f"SELECT * FROM users WHERE id={session['user_id']}").fetchall()[0] # (id integer primary key, username, password, email, profile_pic, about_me, banner_color)
     return render_template("profile.html", user_data = user_data)
 
 @app.route("/profile-change", methods=["POST"])

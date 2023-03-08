@@ -8,9 +8,11 @@
     <title>Document</title>
 </head>
 <body>
+    <h1 style="text-align: center; display: block; color: white;">EDIT PROFILE</h1>
+
     <div class="main-box">
-        <div style="padding-top: 10px; padding-bottom: 10px;" id="banner">
-            <img class="profile-picture-" src="/static/profile-pic/1.jpg">
+        <div style="padding-top: 10px; padding-bottom: 10px; background-color: '{{user_data[6]}}'; border-color: '{{user_data[6]}}';" id="banner">
+            <img class="profile-picture-" src="/static/profile-pic/{{user_data[4]}}">
         </div>
         <br>
         <div class="profile--">
@@ -18,23 +20,74 @@
             <div class="br"></div>
             <p class="about">ABOUT ME</p>
             <p class="about-text">
-                profesional simp
+                {{user_data[5]}}
             </p> <!-- 263 characters max -->
         </div>
     </div>
-    <div>
-        <p>PROFILE PICTURE</p>
-        <div class="br"></div>
-        <button>CHANGE</button>
-        <input style="display: none;">
+    <div class="profile-edit-box">
+        <form action="/t" method="post">
+            <p class="edit-desc">PROFILE PICTURE</p>
+            <div class="br" style="margin: 0;"></div>
+            <button class="button-edit" onclick="document.getElementById('chenge-picture').click()">CHANGE</button>
+            <input id="chenge-picture" style="display: none;" type="file">
 
-        <p>BANNER COLOR</p>
-        <div class="br"></div>
-        <input type="color">
+            <br><br><br><br>
 
-        <p>ABOUT ME</p>
-        <div class="br"></div>
-        <input type="text">
+            <p class="edit-desc">BANNER COLOR</p>
+            <div class="br" style="margin: 0;"></div>
+            
+            <div style="display: grid; grid-template-columns: 150px 50px; margin-top: 26px;">
+                <button onclick="document.getElementById('banner-color-input').click()" class="button-edit" style="border-top-right-radius: 0px; border-bottom-right-radius: 0px; margin-top: 0;">
+                    CHANGE COLOR
+                </button>
+                <div class="color" id="color" style="background-color: '{{user_data[6]}}'; border: 2px #4F545C66 solid;"></div>
+            </div>
+            <input type="color" id="banner-color-input" style="display: none;" value="{{user_data[6]}}">
+
+            <br><br><br><br>
+
+            <p class="edit-desc">ABOUT ME</p>
+            <div class="br" style="margin: 0;"></div>
+            <p class="about-text-input" id="about-text-input" contenteditable></p>
+
+            <br><br>
+            <div class="br" style="margin: 0;"></div>
+            <br><br>
+            
+            <button class="button-edit" style="height: 36px; width: 250px; font-size: 20px; margin: 0 auto;">SUBMIT CHANGES</button>
+        </form>
     </div>
 </body>
+<script>
+    var initial_color = document.getElementById("banner-color-input").value
+    var  initial_about_me = document.getElementById("about-text-input").innerHTML
+
+    console.log(initial_color, initial_about_me)
+    window.addEventListener("beforeunload", function (event) {
+
+        if (! (initial_color == document.getElementById("banner-color-input").value && initial_about_me == document.getElementById("about-text-input").innerHTML)){
+            event.preventDefault();
+            event.returnValue = "";
+            return "Are you sure you want to leave this site?";
+        }
+        
+        
+    });
+
+    function unload(){
+        alert("chesck")
+        if (initial_color == document.getElementById("color").value && initial_about_me == document.getElementById("about-text-input").innerHTML){
+            alert("Nothing changed, bye")
+        }
+        else{
+            alert("Unsaved changes")
+        }
+        
+    }
+
+    document.getElementById("banner-color-input").addEventListener("input", function (){
+        var color = document.getElementById("banner-color-input").value
+        document.getElementById("color").style.backgroundColor = color
+    })
+</script>
 </html>
