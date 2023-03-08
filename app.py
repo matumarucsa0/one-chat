@@ -312,6 +312,17 @@ def upload():
     conn.commit()
 
     return redirect("/t")
-    
+
+@app.route("/user_profile/<id>")
+def user_data(id):
+    data = conn.execute(f"SELECT username, profile_pic, about_me, banner_color FROM users WHERE id={id}").fetchall()[0]
+    data_j = {
+        "username": data[0],
+        "profile_pic": data[1],
+        "about_me": data[2],
+        "banner_color": data[3]
+    }
+    return data_j
+
 if __name__ == '__main__':
     socketio.run(app, debug = True, allow_unsafe_werkzeug=True)
