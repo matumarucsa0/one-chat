@@ -40,8 +40,10 @@
 
 
         <div class="account">
-            <a href="/t">
-                <img style="max-height: 50px; max-width: 50px; margin-top: 15px; margin-right: 35px;" src="https://icon2.cleanpng.com/20180401/huw/kisspng-user-profile-computer-icons-clip-art-profile-5ac092f6be0823.5326777215225699747784.jpg">
+            <a href="/t" style="position: fixed; right: 4%; top: 2%;">
+                <div class="emote-container">
+                    <img class="profile-pic-message" src="/static/profile-pic/{{profile_pic}}">
+                </div>
             </a>
         </div>
         <div class="main-">
@@ -54,14 +56,23 @@
                                         <img style="max-width: 300px; max-height: 300px; margin-top: 4px; margin-bottom: 4px;" src="/static/chat_images/{{message['image_id']}}.jpg">
                             {% else %}
                                 <div class="text-bottom" style="margin-top: 4px;">
-                                    
-                                        {%for content in message["message_content"]%}
-                                            {% if "img--" in content %}
+                                    {% if "only-emote" in message %}
+                                    {%for content in message["message_content"]%}
+                                        {% if "img--" in content %}
+                                                <img style="max-width: 50px; max-height: 50px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
+                                        {% else %}
+                                            <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    {%for content in message["message_content"]%}
+                                        {% if "img--" in content %}
                                                 <img style="max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
-                                            {% else %}
-                                                <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; word-wrap: break-word;">{{content}}</p>
-                                            {% endif %}
-                                        {% endfor %}
+                                        {% else %}
+                                            <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
                                 </div>
                             {% endif %}
                         </div>
@@ -69,7 +80,7 @@
                         {% if message["status"] == "parent" %}
                             <div class="message" style="margin-bottom: 0;">
                                 <div class="emote-container">
-                                    <img style="width: 100%; height: 100%; border-radius: 50%;" src="/static/profile-pic/{{message['profile_picture']}}" onclick="show_profile('{{message.user_id}}')">
+                                    <img class="profile-pic-message" src="/static/profile-pic/{{message['profile_picture']}}" onclick="show_profile('{{message.user_id}}')">
                                 </div>
                                 <div>
                                     <p class="text-top">{{message["username"]}}  {{message["date"]}}</p>
@@ -78,13 +89,23 @@
                                         <img style="max-width: 300px; max-height: 300px" src="/static/chat_images/{{message['image_id']}}.jpg">
                                     {% else %}
                                         <div class="text-bottom">
-                                            {%for content in message["message_content"]%}
-                                                {% if "img--" in content %}
-                                                        <img style="max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
-                                                {% else %}
-                                                    <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
-                                                {% endif %}
-                                            {% endfor %}
+                                            {% if "only-emote" in message %}
+                                                {%for content in message["message_content"]%}
+                                                    {% if "img--" in content %}
+                                                            <img style="max-width: 50px; max-height: 50px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
+                                                    {% else %}
+                                                        <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% else %}
+                                                {%for content in message["message_content"]%}
+                                                    {% if "img--" in content %}
+                                                            <img style="max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
+                                                    {% else %}
+                                                        <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
                                         </div>
                                     {% endif %}
                                 </div>
@@ -92,7 +113,7 @@
                         {% else %}
                             <div class="message">
                                 <div class="emote-container">
-                                    <img style=" width: 100%; height: 100%; border-radius: 50%;" src="/static/profile-pic/{{message['profile_picture']}}">
+                                    <img  class="profile-pic-message" src="/static/profile-pic/{{message['profile_picture']}}" onclick="show_profile('{{message.user_id}}')">
                                 </div>
                                 <div>
                                     <p class="text-top">{{message["username"]}}  {{message["date"]}}</p>
@@ -101,13 +122,23 @@
                                         <img style="max-width: 300px; max-height: 300px" src="/static/chat_images/{{message['image_id']}}.jpg">
                                     {% else %}
                                         <div class="text-bottom">
-                                            {%for content in message["message_content"]%}
-                                                {% if "img--" in content %}
-                                                        <img style="max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
-                                                {% else %}
-                                                    <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
-                                                {% endif %}
-                                            {% endfor %}
+                                            {% if "only-emote" in message %}
+                                                {%for content in message["message_content"]%}
+                                                    {% if "img--" in content %}
+                                                            <img style="max-width: 50px; max-height: 50px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
+                                                    {% else %}
+                                                        <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% else %}
+                                                {%for content in message["message_content"]%}
+                                                    {% if "img--" in content %}
+                                                            <img style="max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
+                                                    {% else %}
+                                                        <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
                                         </div>
                                     {% endif %}
                                 </div>
@@ -126,9 +157,11 @@
                     <div contenteditable id="post-content" class="text-input" style="max-width: 480px;"></div>
                     <div class="dropup">
                         <button onclick="emote_container()" class="dropbtn">Emotes</button>
-                        <div class="dropup-content" id="dropup-content" style="display: none;">
+                        <div class="dropup-content" id="dropup-content" style="display: none; overflow-y: scroll; height:400px;">
                             {% for emote in emotes %}
-                                <li><img onclick="add_emote('{{emote}}')" src="/static/emotes/{{emote}}" style="max-width: 50px; max-height: 50px;"></li>
+                                <li style="width: 50px; height: 50px;">
+                                    <img onclick="add_emote('{{emote}}')" src="/static/emotes/{{emote}}" style="max-width: 50px; max-height: 50px; margin: 0 auto; display: block;">
+                                </li>
                             {% endfor %}
                         </div>
                       </div>
@@ -246,7 +279,7 @@
                 
                 while (index < ar.length){
                     
-                    if (!ar[index].hasAttribute("child")){ 
+                    if (!ar[index].hasAttribute("child")){ //not under child
                         var text_top_old = ar[index].getElementsByClassName("text-top")[0].innerHTML.split(" ")
                         var text_top_new = data['user'].split(" ")
                         console.log(text_top_new)
@@ -255,7 +288,9 @@
                         if (text_top_old[0] == text_top_new[0] &&
                             text_top_old[1] == text_top_new[1] && //create message as child
                             text_top_old[2].slice(0, 5) == text_top_new[2].slice(0, 5)){
-                                console.log("execution")
+                                
+                                //ar[0].setAttribute("style", "margin-bottom: 0;")
+
                                 var box = document.getElementById("massage_box")
             
                                 var message = document.createElement('div')
@@ -389,10 +424,10 @@
                 var profilepicb = document.createElement("div")
                 profilepicb.setAttribute("class", "emote-container")
                 var profilepic = document.createElement("img")
-                profilepic.setAttribute("style","max-width: 100%; max-height: 100%; border-radius: 50%;;")
+                profilepic.setAttribute("class","profile-pic-message")
                 profilepic.setAttribute("src", "/static/profile-pic/"+data['profile_pic']) //fix?
-                profilepic.setAttribute("width", "75")
-                profilepic.setAttribute("height", "75")
+                profilepic.setAttribute("onclick", "show_profile(" + data['user_id'] + ")")
+                
                 profilepicb.appendChild(profilepic)
                 message.appendChild(profilepicb)            
                 

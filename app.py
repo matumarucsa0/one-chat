@@ -139,7 +139,7 @@ def index():
         return redirect("/login")
 
     username, profile_pic = conn.execute(f"SELECT username, profile_pic FROM users WHERE id={user_id}").fetchall()[0]
-    emotes = os.listdir(PATH + "\\static\\emotes")
+    emotes = os.listdir(PATH + "\\static\\emotes")[:50]
     messages = conn.execute("SELECT * FROM posts;").fetchall()
     if len(messages) ==0:
         return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic, emotes = emotes)
@@ -169,13 +169,31 @@ def index():
 
         tmp = x[:]
 
+
+        message_content = x[0].split(';,;')
+
+
+        letter_ = False
+        emote = False
+        for cont in message_content:
+            if "img--" in cont:
+                emote = True
+            else:
+                for letter in cont:
+                    if letter != " " and letter != "":
+                        letter_ = True
+
+        
         data = {
-            "message_content": x[0].split(';,;'),
+            "message_content": message_content,
             "date": x[1],
             "username": x[2],
             "user_id": x[3],
             "profile_picture": conn.execute(f"SELECT profile_pic FROM users WHERE id={x[3]}").fetchall()[0][0],
         }
+
+        if not letter_ and emote:
+            data["only-emote"] = "yes"
 
         if len(image_id) > 1:
             data["image_id"] = image_id
