@@ -109,6 +109,19 @@ def handle_(data):
 
     # add to post database
 
+    #chesk if only emotes
+    letter_ = False
+    emote = False
+    for cont in send:
+        if "img--" in cont:
+            emote = True
+        else:
+            for letter in cont:
+                if letter != " " and letter != "":
+                    letter_ = True
+
+    if not letter_ and emote:
+            data["only-emote"] = "yes"
 
     #emiting the message to connected clients
     u_name = data["username"]
@@ -123,12 +136,22 @@ def handle_(data):
             if send != "":
                 conn.execute(f"INSERT INTO posts (post, date, username, user_id) VALUES ('{str(r)}', '{time}', '{data['username']}', {data['user_id']})")
                 conn.commit()
-                emit("massage",{'chat':send, 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic']}, broadcast=True)
+
+                if not letter_ and emote:
+                    emit("massage",{'chat':send, 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": True}, broadcast=True)
+                else:
+                    emit("massage",{'chat':send, 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": False}, broadcast=True)  
+                
+                
             
     else:
         conn.execute(f"INSERT INTO posts (post, date, username, user_id) VALUES ('{str(r)}', '{time}', '{data['username']}', {data['user_id']})")
         conn.commit()
-        emit("massage",{'chat':send, 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic']}, broadcast=True)
+        if not letter_ and emote:
+                   emit("massage",{'chat':send, 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": True, "only_emotes": True}, broadcast=True)
+        else:
+            emit("massage",{'chat':send, 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": False}, broadcast=True) 
+        
 
 
 @app.route("/", methods=["get", "post"])

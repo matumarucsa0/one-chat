@@ -270,6 +270,8 @@
 
         //on recieved massage
         socket.on('massage', function(data){ 
+            console.log(data['only_emotes'])
+
             var verifier = true
 
             // if last message is child checks if this message can be child -> appends itself as ""/child/parent    
@@ -321,10 +323,19 @@
                                     while (i < message_array.length){
                                         if ( message_array[i].includes("img--")){
                                             
+
                                             var img_mes = document.createElement("img")
                                             img_mes.setAttribute("src", "/static/emotes/"+message_array[i].slice(5))
-                                            img_mes.setAttribute("style", "max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;")
+                                            if (data['only_emotes']){
+                                                img_mes.setAttribute("style", "max-width: 50px; max-height: 50px; display: inline-block; vertical-align: middle;")
+                                            }
+                                            else{
+                                                img_mes.setAttribute("style", "max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;")
+                                            }
                                             div.appendChild(img_mes)
+                                            img_mes.addEventListener("load", function (){
+                                                document.getElementById("anchor").scrollIntoView(true)
+                                            })
                                         }
                                         else{
                                             var p_mes = document.createElement("p")
@@ -391,12 +402,20 @@
                                             
                                             var img_mes = document.createElement("img")
                                             img_mes.setAttribute("src", "/static/emotes/"+message_array[i].slice(5))
-                                            img_mes.setAttribute("style", "max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;")
+                                            if (data['only_emotes']){
+                                                img_mes.setAttribute("style", "max-width: 50px; max-height: 50px; display: inline-block; vertical-align: middle;")
+                                            }
+                                            else{
+                                                img_mes.setAttribute("style", "max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;")
+                                            }
                                             div.appendChild(img_mes)
+                                            img_mes.addEventListener("load", function (){
+                                                document.getElementById("anchor").scrollIntoView(true)
+                                            })
                                         }
                                         else{
                                             var p_mes = document.createElement("p")
-                                            p_mes.setAttribute("style", "display: inline-block; margin-top: 0px; margin-bottom: 0px; ")
+                                            p_mes.setAttribute("style", "display: inline-block; margin-top: 0px; margin-bottom: 0px;")
                                             p_mes.innerHTML = message_array[i]
                                             div.appendChild(p_mes)
                                         }
@@ -404,9 +423,14 @@
                                     }
                                     message.appendChild(div)
                                 }
-                                
+                                p_elements = Array.from(Array.from(document.getElementsByClassName("message")).slice(-1)[0].getElementsByClassName("text-bottom")[0].getElementsByTagName("p")) 
+                                console.log(p_elements)
+                                for (i = 0; i < p_elements.length; i +=1){
+                                    p_elements[i].setAttribute("style", "display: inline-block; margin-top: 0px; margin-bottom: 0px;")
+                                }
+                                console.log(p_elements)
                                 var anchor = document.getElementById("anchor")
-            
+
                                 box.insertBefore(message, anchor);
                                 verifier = false
                             }
@@ -466,8 +490,17 @@
                             
                             var img_mes = document.createElement("img")
                             img_mes.setAttribute("src", "/static/emotes/"+message_array[i].slice(5))
-                            img_mes.setAttribute("style", "max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;")
+
+                            if (data['only_emotes']){
+                                img_mes.setAttribute("style", "max-width: 50px; max-height: 50px; display: inline-block; vertical-align: middle;")
+                            }
+                            else{
+                                img_mes.setAttribute("style", "max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;")
+                            }
                             text_bottom.appendChild(img_mes)
+                            img_mes.addEventListener("load", function (){
+                                document.getElementById("anchor").scrollIntoView(true)
+                            })
                         }
                         else{
                             var p_mes = document.createElement("p")
