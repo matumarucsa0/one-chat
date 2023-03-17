@@ -366,4 +366,4 @@ def user_data(id):
     return data_j
 
 if __name__ == '__main__':
-    socketio.run(app, debug = True)#, allow_unsafe_werkzeug=True
+    socketio.run(app)#, allow_unsafe_werkzeug=True
