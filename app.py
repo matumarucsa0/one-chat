@@ -7,7 +7,7 @@ import os
 import base64
 import random
 
-PATH = "C:\\Users\\admin\\OneDrive\\Počítač\\one-chat"
+PATH = "C:\\Users\\Matus\\Desktop\\one-chat"
 
 app = Flask(__name__)
 
@@ -366,4 +366,4 @@ def user_data(id):
     return data_j
 
 if __name__ == '__main__':
-    socketio.run(app, debug = True, allow_unsafe_werkzeug=True)
+    socketio.run(app, debug = True)#, allow_unsafe_werkzeug=True

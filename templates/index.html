@@ -47,7 +47,7 @@
             </a>
         </div>
         <div class="main-">
-            <div class="messages" id="massage_box">
+            <div class="messages" id="massage_box" style="height: calc(100vh - 102.65625px);">
                 {% for message in messages %}
                     {% if message["status"] =="child" %}
                         <div class="message" style="margin-bottom: 0;" child="">
@@ -181,17 +181,26 @@
         // Loop through the entries
         entries.forEach(entry => {
             // Log the new size of the element
-            document.getElementById("massage_box").setAttribute("style", "height: calc(90vh - "+(entry.contentRect.height + 30)+"px);")
+            is_attach = document.getElementById("attach")
+            if (is_attach){
+                document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - "+(entry.contentRect.height + 102.656+ 250)+"px);")
+            }
+            else{
+                document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - "+(entry.contentRect.height + 102.656)+"px);")
+            }
+
             console.log(`${entry.contentRect.height}`);
             document.getElementById('anchor').scrollIntoView(true);
         });
         });
+        
         if (element) {
-  // Observe the element
-  resizeObserver.observe(element);
-} else {
-  console.error('Element not found');
-}
+            // Observe the element
+            resizeObserver.observe(element);
+        } 
+        else {
+            console.error('Element not found');
+        }
 
         async function show_profile(id){
             const response = await fetch('/user_profile/'+id);
@@ -281,7 +290,7 @@
                 
                 while (index < ar.length){
                     
-                    if (!ar[index].hasAttribute("child")){ //not under child
+                    if (!ar[index].hasAttribute("child")){ //not child
                         var text_top_old = ar[index].getElementsByClassName("text-top")[0].innerHTML.split(" ")
                         var text_top_new = data['user'].split(" ")
                         console.log(text_top_new)
@@ -359,7 +368,7 @@
                     }
                 index+=1
                 }
-            }   //if last element is not a child
+            }   //if last element s child a child
             else{
                 console.log(Array.from(document.getElementsByClassName("message")).slice(-1)[0].getElementsByClassName("text-top")[0].innerHTML)
                 var text_top_old = Array.from(document.getElementsByClassName("message")).slice(-1)[0].getElementsByClassName("text-top")[0].innerHTML.split(" ")
@@ -423,12 +432,17 @@
                                     }
                                     message.appendChild(div)
                                 }
-                                p_elements = Array.from(Array.from(document.getElementsByClassName("message")).slice(-1)[0].getElementsByClassName("text-bottom")[0].getElementsByTagName("p")) 
-                                console.log(p_elements)
-                                for (i = 0; i < p_elements.length; i +=1){
-                                    p_elements[i].setAttribute("style", "display: inline-block; margin-top: 0px; margin-bottom: 0px;")
+                                console.log("GETTING P ELEMENT")
+                                
+                                if (Array.from(document.getElementsByClassName("message")).slice(-1)[0].getElementsByClassName("text-bottom").length != 0){
+                                    p_elements = Array.from(Array.from(document.getElementsByClassName("message")).slice(-1)[0].getElementsByClassName("text-bottom")[0].getElementsByTagName("p")) 
+                                    console.log(p_elements)
+                                    for (i = 0; i < p_elements.length; i +=1){
+                                        p_elements[i].setAttribute("style", "display: inline-block; margin-top: 0px; margin-bottom: 0px;")
+                                    }
                                 }
-                                console.log(p_elements)
+                                
+
                                 var anchor = document.getElementById("anchor")
 
                                 box.insertBefore(message, anchor);
@@ -601,7 +615,11 @@
                             img.setAttribute("id", "image-attachment")
                             
                             //change the messages size
-                            document.getElementById("massage_box").setAttribute("style", "height: 51vh;")
+                            
+                            
+                            height_of_send = Number(document.getElementById("massage_box").style.height.split("vh - ")[1].split("px")[0]) + 250
+                            console.log("TOP: "+ Number(height_of_send))
+                            document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - " + height_of_send +"px);")
                             
 
                             //create attachment menu
@@ -610,6 +628,8 @@
                             d.setAttribute('id', 'attach')
                             document.getElementById("send").insertBefore(d, document.getElementById("box"))
                             d.appendChild(img)
+                            
+                            //document.getElementById("massage_box").setAttribute("style", "height: calc(90vh - 39vh);")
 
                             //change the radius
                             document.getElementById("post-content").setAttribute("style", "border-top-right-radius: 0; border-top-left-radius: 0;")
@@ -624,9 +644,11 @@
                             close.innerHTML = "close"
                             d.appendChild(close)
                             close.addEventListener("click", function () {
+                                v = Number(document.getElementById("massage_box").style.height.split("vh - ")[1].split("px")[0]) - 250
+                                document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - " + v +"px);") //"height: calc(100vh - "+(entry.contentRect.height + 102.656)+"px);"
+                                
                                 d.remove()
                                 document.getElementById("post-content").setAttribute("style", "")
-                                document.getElementById("massage_box").setAttribute("style", "")
                                 val_e.focus()
                             })
                         };

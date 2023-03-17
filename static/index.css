@@ -60,6 +60,7 @@ body{
     display: grid;
     margin: 0 auto;
     margin-top: 30px;
+    margin-bottom: 30px;
 }
 
 .box{
@@ -74,7 +75,7 @@ body{
     border-top-left-radius: 4px;
     position: relative;
     width: 600px;
-    height: 37vh;
+    height: 250px;
     background-color: rgb(64, 68, 75);
 }
 
@@ -149,7 +150,6 @@ body{
     flex-direction: column-reverse;
     overflow-y: scroll;
     overflow-x: hidden;
-    height: calc(90vh - 73px);
 }
 
 

@@ -1,16 +1,14 @@
 # CURRENT #
-Profile managment gui and backend 
 Add a lot of transition animations
 
-larger emotes if message contains no text
-fix images
-fix marghin on parrent message
 generate spaces
+
 
 # LATER #
 Gifs
 Message editing
 max-length of a word
+fix child messages
 
 
 # IDK YET #
