@@ -162,7 +162,7 @@ def index():
         return redirect("/login")
 
     username, profile_pic = conn.execute(f"SELECT username, profile_pic FROM users WHERE id={user_id}").fetchall()[0]
-    emotes = os.listdir(PATH + "\\static\\emotes")[:50]
+    emotes = os.listdir(PATH + "\\static\\emotes")
     messages = conn.execute("SELECT * FROM posts;").fetchall()
     if len(messages) ==0:
         return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic, emotes = emotes)
@@ -300,20 +300,9 @@ def logout():
 @app.route("/register", methods=["get", "post"])
 def reg():
     if request.method == "POST":
+
         username = request.form.get("username")
-        x = conn.execute(f"SELECT * FROM users WHERE username = '{username}';").fetchall()
-        x.append(0)
-
-        y = conn.execute(f"SELECT * FROM users WHERE email = '{request.form.get('email')}'").fetchall()
-        y.append(0)
-
-        if len(x) >= 2:
-            return render_template("register.html", error = "This username is already used")
-
-        elif len(request.form.get("password")) ==0:
-            return render_template("register.html", error = "Not log enough")
-        elif len(y) >= 2:
-            return render_template("register.html", error = "This email is already used")
+        
 
         conn.execute(f"INSERT INTO users (username, password, email, profile_pic, about_me, banner_color) VALUES('{username}', '{request.form.get('password')}', '{request.form.get('email')}', 'default.png', '', '#202225')")
         conn.commit()
@@ -330,23 +319,23 @@ def f():
 @app.route("/profile-change", methods=["POST"])
 def upload():
 
-    """user = session['user_id']
-    current_profile_pic = conn.execute(f"SELECT profile_pic FROM users WHERE id={user}").fetchall()[0][0]
-    
-    #check if default png
-    if current_profile_pic != "default.png":
-        os.remove(PATH + f"\\static\\profile-pic\\{current_profile_pic}")
-    # handle file
-    file = request.files["file"]
-    fileext = file.filename.split(".")[1]
-    file.save(PATH + f"\\static\\profile-pic\\{str(session['user_id'])}.{fileext}")
-    
-    #change path
-    conn.execute(f"UPDATE users set profile_pic='{str(session['user_id'])}.{fileext}' WHERE id={user}")
-    conn.commit()"""
-
-    print(request.files["file"].filename)
     user_id = session["user_id"]
+
+    file_name  = request.files["file"].filename.strip()
+    if file_name != "":
+        current_profile_pic = conn.execute(f"SELECT profile_pic FROM users WHERE id={user_id}").fetchall()[0][0]
+        if current_profile_pic != "default.png":
+            os.remove(PATH + f"\\static\\profile-pic\\{current_profile_pic}")
+
+        file = request.files["file"]
+        fileext = file.filename.split(".")[1]
+        file.save(PATH + f"\\static\\profile-pic\\{str(session['user_id'])}.{fileext}")
+
+        #change path
+        conn.execute(f"UPDATE users set profile_pic='{str(session['user_id'])}.{fileext}' WHERE id={user_id}")
+        conn.commit()
+
+    
     about_me = request.form.get("about-me")
     banner_color = request.form.get("color")
     conn.execute(f"UPDATE users SET about_me='{about_me}', banner_color='{banner_color}' WHERE id={user_id}")
@@ -366,4 +355,4 @@ def user_data(id):
     return data_j
 
 if __name__ == '__main__':
-    socketio.run(app)#, allow_unsafe_werkzeug=True
+        socketio.run(app)#, allow_unsafe_werkzeug=True
