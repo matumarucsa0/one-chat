@@ -6,13 +6,12 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="/static/index.css">
         <title>Home</title>
-        
+        <script src="/static/gif.js" defer></script>
 
         
     </head>
     <script>
         function on_load(){
-            console.log("loaded")
             document.getElementById('anchor').scrollIntoView(true);
             document.getElementById('overlay').style.display = "none";
         }
@@ -52,8 +51,8 @@
                     {% if message["status"] =="child" %}
                         <div class="message" style="margin-bottom: 0;" child="">
                             <div></div>
-                            {% if "image_id" in message %}
-                                        <img style="max-width: 300px; max-height: 300px; margin-top: 4px; margin-bottom: 4px;" src="/static/chat_images/{{message['image_id']}}.jpg">
+                            {% if "image_src" in message %}
+                                        <img style="max-width: 300px; max-height: 300px; margin-top: 4px; margin-bottom: 4px;" src="{{message['image_src']}}">
                             {% else %}
                                 <div class="text-bottom" style="margin-top: 4px;">
                                     {% if "only-emote" in message %}
@@ -85,8 +84,8 @@
                                 <div>
                                     <p class="text-top">{{message["username"]}}  {{message["date"]}}</p>
                                     
-                                    {% if "image_id" in message %}
-                                        <img style="max-width: 300px; max-height: 300px" src="/static/chat_images/{{message['image_id']}}.jpg">
+                                    {% if "image_src" in message %}
+                                        <img style="max-width: 300px; max-height: 300px" src="{{message['image_src']}}">
                                     {% else %}
                                         <div class="text-bottom">
                                             {% if "only-emote" in message %}
@@ -118,8 +117,8 @@
                                 <div>
                                     <p class="text-top">{{message["username"]}}  {{message["date"]}}</p>
                                     
-                                    {% if "image_id" in message %}
-                                        <img style="max-width: 300px; max-height: 300px" src="/static/chat_images/{{message['image_id']}}.jpg">
+                                    {% if "image_src" in message %}
+                                        <img style="max-width: 300px; max-height: 300px" src="{{message['image_src']}}">
                                     {% else %}
                                         <div class="text-bottom">
                                             {% if "only-emote" in message %}
@@ -155,16 +154,28 @@
             <div class="send" id="send">
                 <div class="box" id="box" style="max-width: 75vw;">
                     <div contenteditable id="post-content" class="text-input" style="max-width: 480px;"></div>
+                    
+                    <div class="dropup2">
+                        <button onclick="dropup('dropup-content2')" class="dropbtn2">Gif</button>
+                        <div class="dropup-content2" id="dropup-content2" style="display: none; overflow-y: scroll; height:400px;">
+                            <input type="text" id="gif-search" oninput="render_gif()">
+                            <div id="gif-container">
+
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="dropup">
-                        <button onclick="emote_container()" class="dropbtn">Emotes</button>
+                        <button onclick="dropup('dropup-content')" class="dropbtn">Emotes</button>
                         <div class="dropup-content" id="dropup-content" style="display: none; overflow-y: scroll; height:400px;">
                             {% for emote in emotes %}
                                 <li style="width: 50px; height: 50px;">
-                                    <img onclick="add_emote('{{emote}}')" src="/static/emotes/{{emote}}" style="max-width: 50px; max-height: 50px; margin: 0 auto; display: block;">
+                                    <img loading="lazy" onclick="add_emote('{{emote}}')" src="/static/emotes/{{emote}}" style="max-width: 50px; max-height: 50px; margin: 0 auto; display: block;">
                                 </li>
                             {% endfor %}
                         </div>
-                      </div>
+                    </div>
+                    
                     
                 </div>
             </div>
@@ -189,7 +200,6 @@
                 document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - "+(entry.contentRect.height + 102.656)+"px);")
             }
 
-            console.log(`${entry.contentRect.height}`);
             document.getElementById('anchor').scrollIntoView(true);
         });
         });
@@ -205,7 +215,6 @@
         async function show_profile(id){
             const response = await fetch('/user_profile/'+id);
             const data = await response.json();
-            console.log(data)
 
             document.getElementById("banner").setAttribute("style", 'padding-top: 10px; padding-bottom: 10px; background-color: ' + data['banner_color'] + '; border-color: ' + data['banner_color'] +';')
             document.getElementById("about_profile-img").setAttribute("src", "/static/profile-pic/" + data['profile_pic'])
@@ -220,9 +229,11 @@
             document.getElementById("about_profile").style.display = "none"
             document.getElementById("overlay-user-profile").style.display = "none"
         }
+        
+        
 
-        function emote_container(){
-            var dropup =  document.getElementById("dropup-content")
+        function dropup(id){
+            var dropup =  document.getElementById(id)
             if (dropup.style.display == "none"){
                 dropup.style.display = "block"
             }
@@ -279,7 +290,6 @@
 
         //on recieved massage
         socket.on('massage', function(data){ 
-            console.log(data['only_emotes'])
 
             var verifier = true
 
@@ -293,8 +303,7 @@
                     if (!ar[index].hasAttribute("child")){ //not child
                         var text_top_old = ar[index].getElementsByClassName("text-top")[0].innerHTML.split(" ")
                         var text_top_new = data['user'].split(" ")
-                        console.log(text_top_new)
-                        console.log(text_top_old)
+
                         
                         if (text_top_old[0] == text_top_new[0] &&
                             text_top_old[1] == text_top_new[1] && //create message as child
@@ -311,11 +320,12 @@
 
                                 message.appendChild(document.createElement("div"))
                                 
-                                if ("img_id" in data){ // attachment
-                    
+                                console.log("img_src" in data)
+                                if ("img_src" in data){ // attachment
+                                    console.log(data['img_src'])
                                     var i = document.createElement("img")
                                     i.setAttribute("style", "max-width: 300px; max-height: 300px; margin-top: 4px; margin-bottom: 4px;")
-                                    i.setAttribute("src", "/static/chat_images/"+ data["img_id"] +".jpg")
+                                    i.setAttribute("src", data["img_src"])
                                     message.appendChild(i)
 
                                     i.addEventListener("load", function (){
@@ -370,7 +380,6 @@
                 }
             }   //if last element s child a child
             else{
-                console.log(Array.from(document.getElementsByClassName("message")).slice(-1)[0].getElementsByClassName("text-top")[0].innerHTML)
                 var text_top_old = Array.from(document.getElementsByClassName("message")).slice(-1)[0].getElementsByClassName("text-top")[0].innerHTML.split(" ")
                 var text_top_new = data['user'].split(" ")
                 
@@ -388,11 +397,11 @@
 
                                 message.appendChild(document.createElement("div"))
 
-                                if ("img_id" in data){ // attachment
+                                if ("img_src" in data){ // attachment
                     
                                     var i = document.createElement("img")
                                     i.setAttribute("style", "max-width: 300px; max-height: 300px; margin-top: 4px; margin-bottom: 4px;")
-                                    i.setAttribute("src", "/static/chat_images/"+ data["img_id"] +".jpg")
+                                    i.setAttribute("src", data["img_src"])
                                     message.appendChild(i)
 
                                     i.addEventListener("load", function (){
@@ -432,11 +441,9 @@
                                     }
                                     message.appendChild(div)
                                 }
-                                console.log("GETTING P ELEMENT")
                                 
                                 if (Array.from(document.getElementsByClassName("message")).slice(-1)[0].getElementsByClassName("text-bottom").length != 0){
                                     p_elements = Array.from(Array.from(document.getElementsByClassName("message")).slice(-1)[0].getElementsByClassName("text-bottom")[0].getElementsByTagName("p")) 
-                                    console.log(p_elements)
                                     for (i = 0; i < p_elements.length; i +=1){
                                         p_elements[i].setAttribute("style", "display: inline-block; margin-top: 0px; margin-bottom: 0px;")
                                     }
@@ -478,11 +485,11 @@
                 name.setAttribute("class", "text-top")
                 d.appendChild(name)
 
-                if ("img_id" in data){ // attachment
+                if ("img_src" in data){ // attachment
                     
                     var i = document.createElement("img")
                     i.setAttribute("style", "max-width: 300px; max-height: 300px")
-                    i.setAttribute("src", "/static/chat_images/"+ data["img_id"] +".jpg")
+                    i.setAttribute("src", data["img_src"])
                     d.appendChild(i)
 
                     i.addEventListener("load", function (){
@@ -544,7 +551,7 @@
         val_e = document.getElementById("post-content")
         val_e.focus()
 
-        
+        const PROFILE_PICTURE = "{{profile_pic}}"
 
         document.addEventListener("keydown", function(event){
             
@@ -563,8 +570,12 @@
                         img_attach = resizeImage(img_attach)
 
                         socket.emit("post--",{attach: img_attach,username: user, user_id : user_id, chat : val_e.innerHTML, profile_pic : "{{profile_pic}}"});
+                        
                         document.getElementById("attach").remove()
-                        document.getElementById("massage_box").setAttribute("style", "")
+                        v = Number(document.getElementById("massage_box").style.height.split("vh - ")[1].split("px")[0]) - 250
+                        document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - " + v +"px);") //"height: calc(100vh - "+(entry.contentRect.height + 102.656)+"px);"
+                        document.getElementById("post-content").setAttribute("style", "")
+                        val_e.focus()
                     }
                     else{
                         
@@ -618,7 +629,6 @@
                             
                             
                             height_of_send = Number(document.getElementById("massage_box").style.height.split("vh - ")[1].split("px")[0]) + 250
-                            console.log("TOP: "+ Number(height_of_send))
                             document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - " + height_of_send +"px);")
                             
 

@@ -64,7 +64,7 @@ body{
 .box{
     width: 600px;
     display: grid;
-    grid-template-columns: 4fr 1fr;
+    grid-template-columns: 4fr 1fr 1fr;
 }
 
 
@@ -247,7 +247,7 @@ body{
 
     position: absolute;
     background-color: #f1f1f1;
-    width: 460px;
+    width: 500px;
     bottom: 50px;
     z-index: 1;
     left: -50%;
@@ -267,6 +267,42 @@ body{
   .dropup:hover .dropbtn {
     opacity: 0.7;
   }
+
+
+
+  .dropbtn2 {
+    background-color: #DCDDDE;
+    color: #36393F;
+    width: 100%;
+    height: 100%;
+    border: none; 
+}
+  
+  .dropup2 {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .dropup-content2 {
+    position: absolute;
+    background-color: #f1f1f1;
+    width: 500px;
+    bottom: 50px;
+    z-index: 1;
+    left: -50%;
+  }
+  
+
+  
+.dropup2:hover .dropbtn2 {
+    opacity: 0.7;
+  }
+
+
+
+#gif-container img{
+    padding: 5px;
+}
 
 
 #overlay {
