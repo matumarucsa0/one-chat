@@ -64,7 +64,7 @@ body{
 .box{
     width: 600px;
     display: grid;
-    grid-template-columns: 4fr 1fr 1fr;
+    grid-template-columns: 4fr 2fr;
 }
 
 
@@ -243,16 +243,7 @@ body{
     display: inline-block;
   }
   
-  .dropup-content {
 
-    position: absolute;
-    background-color: #f1f1f1;
-    width: 500px;
-    bottom: 50px;
-    z-index: 1;
-    left: -50%;
-  }
-  
   .dropup-content li {
     color: black;
     padding: 10px 10px;
@@ -281,12 +272,17 @@ body{
   .dropup2 {
     position: relative;
     display: inline-block;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: 100%;
+    width: 100%;
   }
   
-  .dropup-content2 {
+  .dropup-content2, .dropup-content {
     position: absolute;
-    background-color: #f1f1f1;
-    width: 500px;
+    background-color: #2B2D31;
+    width: 550px;
+    height: 500px;
     bottom: 50px;
     z-index: 1;
     left: -50%;
@@ -299,11 +295,96 @@ body{
   }
 
 
+.top-bar{
+    height: 100px;
+    width: 100%;
+    display: block;
+    position: relative;
+}
+
+.top-bar-selection{
+    height: 50px;
+    width: 100%;
+}
+
+.top-bar-selection button{
+    margin-right: 10px;
+    margin-top: 10px;
+    padding:  5px 15px 5px 15px;
+    border: none;
+    background-color: #2B2D31;
+    color: #B5BAC1;
+    font-size: 18px;
+    height: 30px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.top-bar-selection:first-child{
+    margin-left: 25px;
+}
+
+.top-bar-selection button:hover{
+    color: #DBDEE1;
+    cursor: pointer;
+}
+
+.top-bar-button-active{
+    background-color: #41434A !important;
+    color: #FFFFFF !important;
+}
+
+.top-bar-search{
+    height: 50px;
+    width: 100%;
+}
+
+.top-bar-search-bar{
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 470px 30px;
+    width: 500px;
+    background-color: #1E1F22;
+    border: none;
+    border-radius: 4px;
+    outline: none;
+}
+
+#top-bar-search-input, #gif-search{
+    width: 470px;
+    box-sizing: border-box;
+    height: 40px;
+    background-color: #1E1F22;
+    color: #DBDEE1;
+    font-size: 22px;
+    padding:  5px 15px 5px 15px;
+    border: none;
+    outline: none;
+    border-radius: 4px 0 0 4px;
+}
+
+.icon-18rqoe{
+    margin-top: 8px;
+    color: #DBDEE1;
+}
+
+#gif-container{
+    display: grid;
+    grid-row: 1 / -1;
+    grid-template-columns: repeat(2, 1fr);
+}
 
 #gif-container img{
     padding: 5px;
+    width: 231px;
+    border: none;
+    border-radius: 12px;
 }
 
+#gif-container img:hover{
+    cursor: pointer;
+}
 
 #overlay {
     position: fixed; /* Sit on top of the page content */

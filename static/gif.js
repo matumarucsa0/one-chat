@@ -15,7 +15,6 @@ function render_gif(){
 
             const img = document.createElement('img');
             img.src = url;
-            img.style = "width: 231px;"
             img.setAttribute("onclick", `send_gif('${url}')`)
 
             gifContainer.appendChild(img);
