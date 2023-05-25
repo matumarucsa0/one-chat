@@ -1,7 +1,7 @@
 from flask import Flask, redirect, render_template, request, session
 from flask_session import Session
 import sqlite3
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room
 from datetime import datetime
 import os
 import base64
@@ -28,7 +28,13 @@ def after_request(response):
     response.headers["Pragma"] = "no-cache"
     return response
 
+@socketio.on("onload")
+def on_load(data):
+    user = data['user_id']
+    rooms=  conn.execute(f"SELECT id FROM chat_room WHERE users like '%{user}%'").fetchall()
 
+    for room in rooms:
+        join_room(int(room[0]))
 
 
 
@@ -36,7 +42,7 @@ def after_request(response):
 def handle_(data):
     attach = False
     time = datetime.now().strftime('%m/%d/%Y %H:%M')
-
+    room = int(data['room'])
     
     post = str(data['chat'])
 
@@ -88,7 +94,7 @@ def handle_(data):
     r = ";,;".join(r)
     if len(r) == 0:
         r = post
-        send = post
+        send = post 
 
     #checking for attached images
     try:
@@ -129,35 +135,56 @@ def handle_(data):
 
 
     if attach:
-            conn.execute(f"INSERT INTO posts (post, date, username, user_id) VALUES ('{attach_text}', '{time}', '{data['username']}', {data['user_id']})")
+            conn.execute(f"INSERT INTO posts (post, date, username, user_id, room) VALUES ('{attach_text}', '{time}', '{data['username']}', {data['user_id']}, {room})")
             conn.commit()
             
-            emit("massage",{'chat':"", 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "img_src": f"/static/chat_images/{image_id}.jpg"}, broadcast=True)
+            emit("massage",{'chat':"", 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "img_src": f"/static/chat_images/{image_id}.jpg", "room": room}, room=room, broadcast=True)
             if send != "":
                 conn.execute(f"INSERT INTO posts (post, date, username, user_id) VALUES ('{str(r)}', '{time}', '{data['username']}', {data['user_id']})")
                 conn.commit()
 
                 if not letter_ and emote:
-                    emit("massage",{'chat':send, 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": True}, broadcast=True)
+                    emit("massage",{'chat':send, 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": True, "room": room}, room=room, broadcast=True)
                 else:
-                    emit("massage",{'chat':send, 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": False}, broadcast=True)  
+                    emit("massage",{'chat':send, 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": False, "room": room}, room=room, broadcast=True)  
     elif "gif" in data:
         gif = f"[alt--]/*/*/{data['gif']}/*/*/"
-        conn.execute(f"INSERT INTO posts (post, date, username, user_id) VALUES ('{gif}', '{time}', '{data['username']}', {data['user_id']})")
+        conn.execute(f"INSERT INTO posts (post, date, username, user_id, room) VALUES ('{gif}', '{time}', '{data['username']}', {data['user_id']}, {room})")
         conn.commit()
-        emit("massage",{'chat':"", 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "img_src": data['gif']}, broadcast=True)
+        emit("massage",{'chat':"", 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "img_src": data['gif'], "room": room}, room=room, broadcast=True)
     else:
-        conn.execute(f"INSERT INTO posts (post, date, username, user_id) VALUES ('{str(r)}', '{time}', '{data['username']}', {data['user_id']})")
+        conn.execute(f"INSERT INTO posts (post, date, username, user_id, room) VALUES ('{str(r)}', '{time}', '{data['username']}', {data['user_id']}, {room})")
         conn.commit()
         if not letter_ and emote:
-                   emit("massage",{'chat':send, 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": True}, broadcast=True)
+                   emit("massage",{'chat':send, 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": True, "room": room}, room=room, broadcast=True)
         else:
-            emit("massage",{'chat':send, 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": False}, broadcast=True) 
+            emit("massage",{'chat':send, 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": False, "room": room}, room=room, broadcast=True) 
         
 
+@app.route("/users", methods=["get", "post"])
+def fetch_users():
+    users = conn.execute(f"SELECT id, username, profile_pic FROM users WHERE id != {session['user_id']}").fetchall()
+    users_ = [list(user) for user in users]
+    
+    return users_
 
-@app.route("/", methods=["get", "post"])
-def index():
+@app.route("/")
+def main():
+    return redirect("/room/0")
+import json
+@app.route("/add-chat", methods=["post"])
+def add_chat():
+    data = json.load(request.data)
+    chat_name_requester, chat_name_approver = conn.execute(f"SELECT username FROM users WHERE id={session['user_id']}").fetchall()[0][0], conn.execute(f"SELECT username FROM users WHERE id={data['id']}").fetchall()[0][0]
+    new_id = conn.execute("SELECT id FROM chat_room ORDER BY rowid DESC LIMIT 1;").fetchall()[0][0] + 1
+    conn.execute(f"INSERT INTO chat_room (id, users, name) VALUES ({new_id}, {session['user_id']}, '{chat_name_approver}')")
+    conn.execute(f"INSERT INTO chat_room (id, users, name) VALUES ({new_id}, {data['id']}, '{chat_name_requester}')")
+    conn.commit()
+import sys
+@app.route("/room/<room>", methods=["get", "post"])
+def index(room):
+    print(room, file=sys.stdout)
+
     try:
         user_id = session["user_id"]
     except:
@@ -165,9 +192,9 @@ def index():
 
     username, profile_pic = conn.execute(f"SELECT username, profile_pic FROM users WHERE id={user_id}").fetchall()[0]
     emotes = os.listdir(PATH + "/static/emotes")
-    messages = conn.execute("SELECT * FROM posts;").fetchall()
+    messages = conn.execute(f"SELECT * FROM posts WHERE room={room};").fetchall()
     if len(messages) ==0:
-        return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic, emotes = emotes)
+        return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic, emotes = emotes, room=room)
 
     r = []
     # !!! LOW EFFICIENCY
@@ -181,7 +208,7 @@ def index():
             date_new = x[1].split(" ")
             
             if date_old[0] == date_new[0] and date_old[1][:5] == date_new[1][:5] and tmp[2] == x[2]: # and x[0][0:7] != "[alt--]"
-                ver =True
+                ver =True                       
                 if r[-1]["status"] != "child":
                     r[-1]["status"] = "parent"
         
@@ -230,7 +257,10 @@ def index():
         
         image_src = ""
 
-    return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic,  messages = r, emotes=emotes)
+
+        rooms = conn.execute(f"SELECT id, name FROM chat_room WHERE users LIKE '%{user_id}%'").fetchall()
+
+    return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic,  messages = r, emotes=emotes, room = room, rooms=rooms)
 
     
 
@@ -275,7 +305,7 @@ def login():
 
         # Remember which user has logged in
             session["user_id"] = r[0]
-            return redirect("/")
+            return redirect("/room/0")
         else:
             print("Incorect username or password")
             return render_template("login.html", error="Incorect username or password")
@@ -295,7 +325,7 @@ def logout():
     session.clear()
 
     # Redirect user to login form
-    return redirect("/")
+    return redirect("/room/0")
 
 
 @app.route("/register", methods=["get", "post"])
@@ -307,6 +337,8 @@ def reg():
 
         conn.execute(f"INSERT INTO users (username, password, email, profile_pic, about_me, banner_color) VALUES('{username}', '{request.form.get('password')}', '{request.form.get('email')}', 'default.png', '', '#202225')")
         conn.commit()
+        user_id = conn.execute(f"SELECT id FROM users WHERE username='{username}'").fetchall()[0][0]
+        conn.execute(f"INSERT INTO chat_room (id, users, name) VALUES (0, {user_id}, 'main_chat')")
         return redirect("/login")
     else:
         return render_template("register.html")
