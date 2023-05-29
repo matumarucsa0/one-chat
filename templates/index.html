@@ -53,24 +53,30 @@
                 
             </div>
         </div>
-
-        <div class="main-div">
+        
+        <div class="{% if group.group %}main-div-group{% else %}main-div{% endif %}">
             <div>
-                <button class="add-chat" onclick="get_users()">Add chat</button>
-                
-                
-
-
+                <button class="add-chat" onclick="get_users_direct()">Add chat</button>
+                <button class="add-chat" onclick="get_users_group()">Add group</button>
                 {% for r in rooms %}
                     {% if r[0]|string == room %}
-                    <div class="chat-selected"><a>{{r[1]}}</a></div>
+                        <div class="chat-selected">
+                            <img src="{{r[2]}}">
+                            <div><p>{{r[1]}}</p></div>
+                        </div>
                     {% else %}
-                        <div class="chat-select"><a href="/room/{{r[0]}}">{{r[1]}}</a></div>
+                        <a href="/room/{{r[0]}}" style="display: block;">
+                            <div class="chat-select">
+                                <img src="{{r[2]}}">
+                                <div><p>{{r[1]}}</p></div>
+                            </div>
+                        </a>
                     {% endif %}
                 {% endfor %}
 
             </div>
             <div class="main-">
+                
                 <div class="messages" id="massage_box" style="height: calc(100vh - 102.65625px);">
                     {% for message in messages %}
                         {% if message["status"] =="child" %}
@@ -228,6 +234,19 @@
                     </div>
                 </div>
             </div>
+            {% if group.group %}
+                <div>
+                    
+                    {% for user in group.users %}
+                        <div class="chat-select">
+                            <img src="/static/profile-pic/{{user[1]}}">
+                            <div>
+                                <p>{{user[0]}}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+           {% endif %}
         </div>
     </body>
 
@@ -490,5 +509,6 @@
 
     </script>
     <script src="/static/recieve.js"></script>
+    <script src="/static/add_chat.js"></script>
     
 </html>

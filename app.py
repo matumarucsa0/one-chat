@@ -168,33 +168,61 @@ def fetch_users():
     
     return users_
 
+
 @app.route("/")
 def main():
     return redirect("/room/0")
+
+
 import json
 @app.route("/add-chat", methods=["post"])
 def add_chat():
-    data = json.load(request.data)
-    chat_name_requester, chat_name_approver = conn.execute(f"SELECT username FROM users WHERE id={session['user_id']}").fetchall()[0][0], conn.execute(f"SELECT username FROM users WHERE id={data['id']}").fetchall()[0][0]
+    data = json.loads(request.data)
+
+    #check if chat already exists
+    check = set(conn.execute(f"SELECT users FROM chat_room WHERE id IN (SELECT id FROM chat_room WHERE users == {session['user_id']} AND type='direct-chat') AND type ='direct-chat' AND users!={session['user_id']}").fetchall())
+    for check_id in check:
+        if check_id[0] == int(data['id']):
+            return {"status": "error"}
+    
+
+    chat_name_requester, chat_name_approver = conn.execute(f"SELECT username, profile_pic FROM users WHERE id={session['user_id']}").fetchall()[0], conn.execute(f"SELECT username, profile_pic FROM users WHERE id={data['id']}").fetchall()[0]
     new_id = conn.execute("SELECT id FROM chat_room ORDER BY rowid DESC LIMIT 1;").fetchall()[0][0] + 1
-    conn.execute(f"INSERT INTO chat_room (id, users, name) VALUES ({new_id}, {session['user_id']}, '{chat_name_approver}')")
-    conn.execute(f"INSERT INTO chat_room (id, users, name) VALUES ({new_id}, {data['id']}, '{chat_name_requester}')")
+    conn.execute(f"INSERT INTO chat_room (id, users, name, img, type) VALUES ({new_id}, {session['user_id']}, '{chat_name_approver[0]}', '/static/profile-pic/{chat_name_approver[1]}', 'direct-chat')")
+    conn.execute(f"INSERT INTO chat_room (id, users, name, img, type) VALUES ({new_id}, {data['id']}, '{chat_name_requester[0]}', '/static/profile-pic/{chat_name_requester[1]}', 'direct-chat')")
     conn.commit()
+    return {"status": "ok"}
+    
+@app.route("/add-group", methods=['POST'])
+def add_group():
+    data = json.loads(request.data)['user_id_array'].split(",") + [session['user_id']]
+
+
+    new_id = conn.execute("SELECT id FROM chat_room ORDER BY rowid DESC LIMIT 1;").fetchall()[0][0] + 1
+    for user_id in data:
+
+        conn.execute(f"INSERT INTO chat_room (id, users, name, img, type) VALUES ({new_id}, {int(user_id)}, 'tst', '/static/setup/group.png', 'group')")
+        conn.commit()
+    return {}
+
 import sys
 @app.route("/room/<room>", methods=["get", "post"])
 def index(room):
-    print(room, file=sys.stdout)
-
     try:
         user_id = session["user_id"]
     except:
         return redirect("/login")
 
+    rooms = conn.execute(f"SELECT id, name, img FROM chat_room WHERE users LIKE '%{user_id}%'").fetchall()
+    group = {"group": False}
+    if conn.execute(f"SELECT type FROM chat_room WHERE id={room}").fetchall()[0][0] == 'group':
+        group_users = conn.execute(f"SELECT username, profile_pic FROM users WHERE id IN (SELECT users FROM chat_room WHERE id={room})").fetchall()
+        group = {"group": True, "users": group_users}
     username, profile_pic = conn.execute(f"SELECT username, profile_pic FROM users WHERE id={user_id}").fetchall()[0]
     emotes = os.listdir(PATH + "/static/emotes")
     messages = conn.execute(f"SELECT * FROM posts WHERE room={room};").fetchall()
     if len(messages) ==0:
-        return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic, emotes = emotes, room=room)
+        return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic, emotes = emotes, room=room, rooms=rooms, group=group)
 
     r = []
     # !!! LOW EFFICIENCY
@@ -258,9 +286,7 @@ def index(room):
         image_src = ""
 
 
-        rooms = conn.execute(f"SELECT id, name FROM chat_room WHERE users LIKE '%{user_id}%'").fetchall()
-
-    return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic,  messages = r, emotes=emotes, room = room, rooms=rooms)
+    return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic,  messages = r, emotes=emotes, room = room, rooms=rooms, group=group)
 
     
 
@@ -338,7 +364,7 @@ def reg():
         conn.execute(f"INSERT INTO users (username, password, email, profile_pic, about_me, banner_color) VALUES('{username}', '{request.form.get('password')}', '{request.form.get('email')}', 'default.png', '', '#202225')")
         conn.commit()
         user_id = conn.execute(f"SELECT id FROM users WHERE username='{username}'").fetchall()[0][0]
-        conn.execute(f"INSERT INTO chat_room (id, users, name) VALUES (0, {user_id}, 'main_chat')")
+        conn.execute(f"INSERT INTO chat_room (id, users, name, img, type) VALUES (0, {user_id}, 'main_chat', '/static/setup/group.png', 'group')")
         return redirect("/login")
     else:
         return render_template("register.html")
@@ -389,4 +415,4 @@ def user_data(id):
 
 if __name__ == '__main__':
         
-        socketio.run(app, debug=True)#, allow_unsafe_werkzeug=True
+    socketio.run(app, debug=True)#, allow_unsafe_werkzeug=True

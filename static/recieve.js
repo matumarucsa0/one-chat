@@ -6,7 +6,7 @@ socket.on('massage', function(data){
     }
     var verifier = true
 
-    if (Array.from(document.getElementsByClassName).length == 0){
+    if (Array.from(document.getElementsByClassName("message")).length == 0){
         
     }
     // if last message is child checks if this message can be child -> appends itself as ""/child/parent    
