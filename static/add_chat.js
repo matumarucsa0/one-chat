@@ -129,5 +129,5 @@ async function add_group(){
         }`
        });
     
-   //location.reload()
+   location.reload()
 }

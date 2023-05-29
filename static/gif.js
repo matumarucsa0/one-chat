@@ -25,5 +25,5 @@ function render_gif(){
 
 function send_gif(link){
     console.log("clicked")
-    socket.emit("post--",{chat: "",gif: link,username: user, user_id : user_id, profile_pic : PROFILE_PICTURE});
+    socket.emit("post--",{chat: "",gif: link,username: user, user_id : user_id, profile_pic : PROFILE_PICTURE, room:room});
 }

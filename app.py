@@ -196,12 +196,12 @@ def add_chat():
 @app.route("/add-group", methods=['POST'])
 def add_group():
     data = json.loads(request.data)['user_id_array'].split(",") + [session['user_id']]
-
+    name = ", ".join([conn.execute(f"SELECT username FROM users WHERE id={id}").fetchall()[0][0] for id in data])
 
     new_id = conn.execute("SELECT id FROM chat_room ORDER BY rowid DESC LIMIT 1;").fetchall()[0][0] + 1
     for user_id in data:
 
-        conn.execute(f"INSERT INTO chat_room (id, users, name, img, type) VALUES ({new_id}, {int(user_id)}, 'tst', '/static/setup/group.png', 'group')")
+        conn.execute(f"INSERT INTO chat_room (id, users, name, img, type) VALUES ({new_id}, {int(user_id)}, '{name}', '/static/setup/group.png', 'group')")
         conn.commit()
     return {}
 

@@ -55,7 +55,7 @@
         </div>
         
         <div class="{% if group.group %}main-div-group{% else %}main-div{% endif %}">
-            <div>
+            <div class="side-bar">
                 <button class="add-chat" onclick="get_users_direct()">Add chat</button>
                 <button class="add-chat" onclick="get_users_group()">Add group</button>
                 {% for r in rooms %}

@@ -14,13 +14,13 @@ body{
     grid-template-columns: 20vw 60vw 20vw;
 }
 
-.main-div a{
-    text-decoration: none;
+.side-bar a{
+    text-decoration: none !important;
 }
 
-.main-div a:hover{
+.side-bar a:hover{
     cursor: pointer;
-    text-decoration: none;
+    text-decoration: none !important;
 
 }
 
@@ -49,6 +49,10 @@ body{
     margin: 0;
     margin-left: 10px;
     font-size: 18px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 130px;
 }
 
 .chat-select div, .chat-selected div{
@@ -57,10 +61,6 @@ body{
 
 .chat-select div p{
     text-decoration: none;
-}
-
-.chat-selected div p{
-    text-decoration: underline;
 }
 
 .chat-selected{
