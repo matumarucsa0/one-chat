@@ -69,7 +69,7 @@ def on_load(data):
 @socketio.on("post--")
 def handle_(data):
     attach = False
-    time = datetime.now().strftime('%m/%d/%Y %H:%M')
+    time_formated = datetime.now().strftime('%m/%d/%Y %H:%M')
     room = int(data['room'])
     
     post = str(data['chat'])
@@ -163,30 +163,30 @@ def handle_(data):
 
 
     if attach:
-            conn.execute(f"INSERT INTO posts (post, date, username, user_id, room) VALUES ('{attach_text}', '{time}', '{data['username']}', {data['user_id']}, {room})")
+            conn.execute(f"INSERT INTO posts (post, date, username, user_id, room, int_date) VALUES ('{attach_text}', '{time_formated}', '{data['username']}', {data['user_id']}, {room}, {time.time()})")
             conn.commit()
             
-            emit("massage",{'chat':"", 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "img_src": f"/static/chat_images/{image_id}.jpg", "room": room}, room=room, broadcast=True)
+            emit("massage",{'chat':"", 'user': f"{u_name} {time_formated}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "img_src": f"/static/chat_images/{image_id}.jpg", "room": room}, room=room, broadcast=True)
             if send != "":
-                conn.execute(f"INSERT INTO posts (post, date, username, user_id) VALUES ('{str(r)}', '{time}', '{data['username']}', {data['user_id']})")
+                conn.execute(f"INSERT INTO posts (post, date, username, user_id, int_date) VALUES ('{str(r)}', '{time_formated}', '{data['username']}', {data['user_id']}, {time.time()})")
                 conn.commit()
 
                 if not letter_ and emote:
-                    emit("massage",{'chat':send, 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": True, "room": room}, room=room, broadcast=True)
+                    emit("massage",{'chat':send, 'user': f"{u_name} {time_formated}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": True, "room": room}, room=room, broadcast=True)
                 else:
-                    emit("massage",{'chat':send, 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": False, "room": room}, room=room, broadcast=True)  
+                    emit("massage",{'chat':send, 'user': f"{u_name} {time_formated}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": False, "room": room}, room=room, broadcast=True)  
     elif "gif" in data:
         gif = f"[alt--]/*/*/{data['gif']}/*/*/"
-        conn.execute(f"INSERT INTO posts (post, date, username, user_id, room) VALUES ('{gif}', '{time}', '{data['username']}', {data['user_id']}, {room})")
+        conn.execute(f"INSERT INTO posts (post, date, username, user_id, room, int_date) VALUES ('{gif}', '{time_formated}', '{data['username']}', {data['user_id']}, {room}, {time.time})")
         conn.commit()
-        emit("massage",{'chat':"", 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "img_src": data['gif'], "room": room}, room=room, broadcast=True)
+        emit("massage",{'chat':"", 'user': f"{u_name} {time_formated}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "img_src": data['gif'], "room": room}, room=room, broadcast=True)
     else:
-        conn.execute(f"INSERT INTO posts (post, date, username, user_id, room) VALUES ('{str(r)}', '{time}', '{data['username']}', {data['user_id']}, {room})")
+        conn.execute(f"INSERT INTO posts (post, date, username, user_id, room, int_date) VALUES ('{str(r)}', '{time_formated}', '{data['username']}', {data['user_id']}, {room}, {time.time()})")
         conn.commit()
         if not letter_ and emote:
-                   emit("massage",{'chat':send, 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": True, "room": room}, room=room, broadcast=True)
+                   emit("massage",{'chat':send, 'user': f"{u_name} {time_formated}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": True, "room": room}, room=room, broadcast=True)
         else:
-            emit("massage",{'chat':send, 'user': f"{u_name} {time}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": False, "room": room}, room=room, broadcast=True) 
+            emit("massage",{'chat':send, 'user': f"{u_name} {time_formated}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": False, "room": room}, room=room, broadcast=True) 
         
 
 @app.route("/users", methods=["get", "post"])
@@ -233,6 +233,17 @@ def add_group():
         conn.commit()
     return {}
 
+def orderedRooms(rooms: list):
+    rooms = rooms[:]
+    r = []
+    for room in rooms:
+        last_message_date = conn.execute(f"SELECT int_date FROM posts WHERE room={room[0]} ORDER BY rowid DESC LIMIT 1").fetchall()
+        if len(last_message_date) == 0:
+            r.append((room, 9999))
+        else:
+            r.append((room, last_message_date[0][0]))
+    r.sort(key=lambda x: x[1], reverse=True)
+    return [room[0] for room in r]
 import sys
 @app.route("/room/<room>", methods=["get", "post"])
 def index(room):
@@ -254,6 +265,8 @@ def index(room):
             rooms.append(list(rrr) + [conn.execute(f"SELECT users FROM chat_room WHERE id={rrr[0]} AND users!={session['user_id']}").fetchall()[0][0]])
         else:
             rooms.append(list(rrr))
+
+    rooms = orderedRooms(rooms)
     room_memeber_amount = {}
     for chat in rooms:
         if chat[3] == 'group':

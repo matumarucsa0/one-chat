@@ -39,11 +39,14 @@ socket.on("is_typing", function (data){
 })
 
 function updateStatus(){
-    if (time <= Date.now() - 125){
+    if (time <= Date.now() - 200){
+        
+        typing_users_array = Array.from(typing_users)
+        typing_users_array = typing_users_array.sort()
         is_typing_element = document.getElementById("is_typing_element")
-        if (typing_users.size > 0){
+        if (typing_users_array.length > 0){
             is_typing_p = ""
-            for (userName of typing_users){
+            for (userName of typing_users_array){
                 is_typing_p += `${userName} is typing..., `            
             }
             is_typing_element.style.display = "block"
@@ -56,7 +59,7 @@ function updateStatus(){
     }
 }
 
-setInterval(isTypingEmit, 75)
-setInterval(updateStatus, 100)
+setInterval(isTypingEmit, 90)
+setInterval(updateStatus, 190)
 
 setInterval(send_status, 750)

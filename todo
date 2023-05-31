@@ -1,13 +1,12 @@
 # CURRENT #
 Add a lot of transition animations
 fix page size problems
-generate spaces
 fix gif
+fix is_typing
 
 
 # LATER #
 Message editing
-max-length of a word
 is typing
 redo page layout
 

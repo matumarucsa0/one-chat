@@ -2,6 +2,7 @@ function close_get_users(){
     document.getElementById("overlay2").style.display = "none"
     document.getElementById("add-chat-box").style.display = "none"
     document.getElementsByClassName("add-chat-bottom")[0].style = ""
+    document.getElementsByClassName("abs_bottom")[0].remove()
 }
 
 async function get_users_direct(){
