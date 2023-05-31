@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/static/account_manage.css">
 </head>
 <body>
-    <div class="box">
+    <div class="box" id="box">
         <div class="inner-box">
             <div>
                 
@@ -26,11 +26,36 @@
                 <button class="input-button" type="submit">Sign In</button>
                 <div class="register-box">
                     <p style="font-size: 14px;">Dont have an account?</p>
-                    <a class="register" href="/register">Register</a>
+                    <a class="register" id="myLink" href="/register">Register</a>
                 </div>
             </form>
         </div>
     </div>
 </body>
+<script>
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    var link = document.getElementById('myLink');
+
+    // Add a click event listener
+    link.addEventListener('click',async function(event) {
+        // Prevent the default redirect behavior
+        event.preventDefault();
+
+        // Execute your function
+        await endAnimation();
+
+        console.log(link.href)
+        // Manually trigger the redirect
+        window.location.href = link.href
+    });
+
+    async function endAnimation(){
+        document.getElementById("box").className = "out-box"
+        await sleep(300)
+    }
+</script>
 </html>
 

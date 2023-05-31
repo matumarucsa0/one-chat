@@ -4,13 +4,35 @@ body{
     background-color: rgb(51, 54, 59);
 }
 
-.box{
+@keyframes example {
+    0% {margin-top: -600px;}
+    100% {margin-top: 4vw;}
+}
+
+@keyframes example2 {
+    0% {margin-top: 4vw;}
+    100% {margin-top: -600px;}
+}
+
+.box, .out-box{
     width: 400px;
     margin: 0 auto;
-    margin-top: 4vw;
     background-color: rgb(32, 34, 37);
     border-radius: 10px;   
     padding: 20px;
+    
+}
+
+.box{
+    margin-top: 4vw;
+    animation-name: example;
+    animation-duration: 0.3s;
+}
+
+.out-box{
+    margin-top: -600px;
+    animation-name: example2;
+    animation-duration: 0.3s;
 }
 
 .inner-box{

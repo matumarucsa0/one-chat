@@ -24,19 +24,19 @@ body{
 
 }
 
-.chat-select, .chat-selected{
+.chat-select, .chat-selected, .group-member{
     width: 100%;
     height: 45px;
     display: grid;
     grid-template-columns: 50px 1fr;
 }
 
-.chat-select:hover, .chat-selected:hover{
+.chat-select:hover, .chat-selected:hover, .group-member:hover{
     cursor: pointer;
     background-color: #35373C;
 }
 
-.chat-select img, .chat-selected img{
+.chat-select section img, .chat-selected section img, .group-member img{
     border-radius: 50%;
     width: 35px;
     height: 35px;
@@ -44,7 +44,12 @@ body{
     margin-left: 15px;
 }
 
-.chat-select div p, .chat-selected div p{
+.chat-select section svg, .chat-selected section svg{
+    right: 0px;
+    bottom: 5px;
+}
+
+.chat-select div p, .chat-selected div p, .group-member div p{
     color: #DCDDDE;
     margin: 0;
     margin-left: 10px;
@@ -55,12 +60,34 @@ body{
     width: 130px;
 }
 
-.chat-select div, .chat-selected div{
+
+
+.user-amount{
+    color: #DCDDDE;
+    margin: 0;
+    margin-left: 10px;
+    font-size: 14px !important;
+    width: 130px;
+}
+
+.chat-select div, .chat-selected div, .group-member div{
     padding-top: 12.5px;
 }
 
 .chat-select div p{
     text-decoration: none;
+}
+
+#is_typing_element{
+    position: absolute;
+    margin: 0px;
+    bottom: 97px;
+    font-size: 13px;
+    color: #DCDDDE;
+}
+
+#is_typing_element:hover{
+    cursor: default;
 }
 
 .chat-selected{

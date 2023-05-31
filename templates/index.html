@@ -59,19 +59,26 @@
                 <button class="add-chat" onclick="get_users_direct()">Add chat</button>
                 <button class="add-chat" onclick="get_users_group()">Add group</button>
                 {% for r in rooms %}
-                    {% if r[0]|string == room %}
-                        <div class="chat-selected">
-                            <img src="{{r[2]}}">
-                            <div><p>{{r[1]}}</p></div>
-                        </div>
-                    {% else %}
-                        <a href="/room/{{r[0]}}" style="display: block;">
-                            <div class="chat-select">
+                    <a {% if r[0]|string != 'room' %}href="/room/{{r[0]}}"{% endif %} style="display: block;" >
+                        <div class="{% if r[0]|string == room %}chat-selected{% else %}chat-select{% endif %}">
+                            <section style="position: relative;">
                                 <img src="{{r[2]}}">
-                                <div><p>{{r[1]}}</p></div>
-                            </div>
-                        </a>
-                    {% endif %}
+                                {% if r[3]|string == 'direct-chat' %}
+                                <svg style="position:absolute;" width="10" height="10" >
+                                    <circle r="5" cx="5" cy="5" fill="#F23F43" user_id="{{r[4]}}" class="stat"></circle>
+                                </svg>
+                                {% endif %}
+                            </section>
+                            {% if r[3]|string == 'direct-chat' %}
+                            <div><p>{{r[1]}}</p></div>
+                            {% else %}
+                                <div style="padding-top: 5px;">
+                                    <p>{{r[1]}}</p>
+                                    <p class="user-amount">{{group_user_amount[r[0]]}} Members</p>
+                                </div>
+                            {% endif%}
+                        </div>
+                    </a>
                 {% endfor %}
 
             </div>
@@ -184,8 +191,8 @@
 
                 <div class="send" id="send">
                     <div class="box" id="box" style="max-width: 75vw;">
-                        <div contenteditable id="post-content" class="text-input" style="max-width: 480px;"></div>
-                        
+                        <div contenteditable id="post-content" class="text-input" style="max-width: 480px; position: relative;"></div>
+                        <p id="is_typing_element">HEY</p>
                         <div class="dropup2">
                             <button onclick="dropup('dropup-content2', 'dropup-content')" class="dropbtn2">Gif</button>
                             <div class="dropup-content2" id="dropup-content2" style="display: none;">
@@ -239,9 +246,15 @@
                     
                     {% for user in group.users %}
                         <div class="chat-select">
-                            <img src="/static/profile-pic/{{user[1]}}">
+                            <section style="position: relative;">
+                                <img src="/static/profile-pic/{{user[2]}}">
+                                <svg style="position:absolute;" width="10" height="10" >
+                                    <circle r="5" cx="5" cy="5" fill="#F23F43" user_id="{{user[0]}}" class="stat"></circle>
+                                </svg>
+                            </section>
+                            
                             <div>
-                                <p>{{user[0]}}</p>
+                                <p>{{user[1]}}</p>
                             </div>
                         </div>
                     {% endfor %}
@@ -256,10 +269,6 @@
         const room = "{{room}}"
         console.log(room)
 
-
-        
-
-        
         const element = document.querySelector("#post-content");
 
         // Create a new ResizeObserver
@@ -354,8 +363,8 @@
         }
 
 
-        var user = "{{username}}"
-        var user_id = "{{user_id}}"
+        const user = "{{username}}"
+        const user_id = "{{user_id}}"
 
         var socket = io();
 
@@ -510,5 +519,5 @@
     </script>
     <script src="/static/recieve.js"></script>
     <script src="/static/add_chat.js"></script>
-    
+    <script src="/static/status.js"></script>
 </html>

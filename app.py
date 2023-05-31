@@ -6,8 +6,10 @@ from datetime import datetime
 import os
 import base64
 import random
+import time
 
 PATH = os.getcwd()
+
 
 app = Flask(__name__)
 
@@ -15,10 +17,36 @@ conn = sqlite3.connect("data.db", check_same_thread=False)
 
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
+app.config['ENGINEIO_PAYLOAD_MAX_NUM'] = 1000
 Session(app)
 
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, max_http_buffer_size = 1000000000)
+#typing status
+@socketio.on("typing")
+def typing(data):
+    emit("is_typing", {"user": data['user']}, room=int(data['room']), broadcast=True)
+
+
+
+def validateRoom(id, rooms):
+    for room in rooms:
+        if int(id) == room[0]:
+            return True
+    return False
+
+is_online = set()
+l_time = time.time()
+@socketio.on("is-online")
+def online(data):
+    global l_time
+    global is_online
+    is_online.add(data['user'])
+
+    if l_time < time.time() - 2:
+        emit("users-online", {"users_online": list(is_online)}, broadcast=True)
+        l_time = time.time()
+        is_online = set()
 
 @app.after_request
 def after_request(response):
@@ -213,16 +241,33 @@ def index(room):
     except:
         return redirect("/login")
 
-    rooms = conn.execute(f"SELECT id, name, img FROM chat_room WHERE users LIKE '%{user_id}%'").fetchall()
+
+
+    rooms_ = conn.execute(f"SELECT id, name, img, type FROM chat_room WHERE users LIKE '%{user_id}%'").fetchall()
+    rooms = []
+
+    if not validateRoom(room, rooms_):
+        return redirect("/room/0")
+    
+    for rrr in rooms_:
+        if rrr[3] == 'direct-chat':
+            rooms.append(list(rrr) + [conn.execute(f"SELECT users FROM chat_room WHERE id={rrr[0]} AND users!={session['user_id']}").fetchall()[0][0]])
+        else:
+            rooms.append(list(rrr))
+    room_memeber_amount = {}
+    for chat in rooms:
+        if chat[3] == 'group':
+            n = len(conn.execute(f"SELECT type FROM chat_room WHERE id={chat[0]}").fetchall())
+            room_memeber_amount[chat[0]] = n
     group = {"group": False}
     if conn.execute(f"SELECT type FROM chat_room WHERE id={room}").fetchall()[0][0] == 'group':
-        group_users = conn.execute(f"SELECT username, profile_pic FROM users WHERE id IN (SELECT users FROM chat_room WHERE id={room})").fetchall()
+        group_users = conn.execute(f"SELECT id, username, profile_pic FROM users WHERE id IN (SELECT users FROM chat_room WHERE id={room})").fetchall()
         group = {"group": True, "users": group_users}
     username, profile_pic = conn.execute(f"SELECT username, profile_pic FROM users WHERE id={user_id}").fetchall()[0]
     emotes = os.listdir(PATH + "/static/emotes")
     messages = conn.execute(f"SELECT * FROM posts WHERE room={room};").fetchall()
     if len(messages) ==0:
-        return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic, emotes = emotes, room=room, rooms=rooms, group=group)
+        return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic, emotes = emotes, room=room, rooms=rooms, group=group, group_user_amount=room_memeber_amount)
 
     r = []
     # !!! LOW EFFICIENCY
@@ -286,7 +331,7 @@ def index(room):
         image_src = ""
 
 
-    return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic,  messages = r, emotes=emotes, room = room, rooms=rooms, group=group)
+    return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic,  messages = r, emotes=emotes, room = room, rooms=rooms, group=group, group_user_amount=room_memeber_amount)
 
     
 

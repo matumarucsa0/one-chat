@@ -1,22 +1,16 @@
 # CURRENT #
 Add a lot of transition animations
-chnge the displaying of the profile picture change
 fix page size problems
 generate spaces
-error at making consecutive messsages
-fix message childs from sockets
-is online
+fix gif
+
 
 # LATER #
-Gifs
 Message editing
 max-length of a word
-fix child messages
 is typing
-
-
+redo page layout
 
 # IDK YET #
-
 Redesign image algorithm
 change the format of saving images in the database
