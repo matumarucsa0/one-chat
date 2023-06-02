@@ -57,9 +57,9 @@
         <div class="{% if group.group %}main-div-group{% else %}main-div{% endif %}">
             <div class="side-bar">
                 <button class="add-chat" onclick="get_users_direct()">Add chat</button>
-                <button class="add-chat" onclick="get_users_group()">Add group</button>
+                <button id="b" class="add-chat" onclick="get_users_group()">Add group</button>
                 {% for r in rooms %}
-                    <a {% if r[0]|string != 'room' %}href="/room/{{r[0]}}"{% endif %} style="display: block;" >
+                    <a {% if r[0]|string != 'room' %}href="/room/{{r[0]}}"{% endif %} chat_id="chat-{{r[0]}}" style="display: block;" >
                         <div class="{% if r[0]|string == room %}chat-selected{% else %}chat-select{% endif %}">
                             <section style="position: relative;">
                                 <img src="{{r[2]}}">
@@ -420,6 +420,7 @@
                 }
                 
             } 
+            isTypingStaus = false
         })
         
         function insertTextAtCursor(text) {

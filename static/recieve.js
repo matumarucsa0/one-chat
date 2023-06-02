@@ -1,8 +1,13 @@
 socket.on('massage', function(data){ 
     console.log("MESSAGE!")
+    chat = document.querySelector(`a[chat_id='chat-${data["room"]}']`)
+    chat.remove()
+    document.getElementById("b").insertAdjacentElement("afterend", chat)
     if (data['room'] != room){
         console.log("Message in room "+ data['room'])
+        
         return
+        
     }
     var verifier = true
 

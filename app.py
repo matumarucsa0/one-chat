@@ -25,7 +25,7 @@ socketio = SocketIO(app, max_http_buffer_size = 1000000000)
 #typing status
 @socketio.on("typing")
 def typing(data):
-    emit("is_typing", {"user": data['user']}, room=int(data['room']), broadcast=True)
+    emit("is_typing", {"user": data['user'], "room": data['room']}, room=int(data['room']), broadcast=True)
 
 
 
@@ -215,7 +215,7 @@ def add_chat():
     
 
     chat_name_requester, chat_name_approver = conn.execute(f"SELECT username, profile_pic FROM users WHERE id={session['user_id']}").fetchall()[0], conn.execute(f"SELECT username, profile_pic FROM users WHERE id={data['id']}").fetchall()[0]
-    new_id = conn.execute("SELECT id FROM chat_room ORDER BY rowid DESC LIMIT 1;").fetchall()[0][0] + 1
+    new_id = random.randint(100000000000, 999999999999)
     conn.execute(f"INSERT INTO chat_room (id, users, name, img, type) VALUES ({new_id}, {session['user_id']}, '{chat_name_approver[0]}', '/static/profile-pic/{chat_name_approver[1]}', 'direct-chat')")
     conn.execute(f"INSERT INTO chat_room (id, users, name, img, type) VALUES ({new_id}, {data['id']}, '{chat_name_requester[0]}', '/static/profile-pic/{chat_name_requester[1]}', 'direct-chat')")
     conn.commit()

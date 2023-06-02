@@ -3,6 +3,9 @@ Add a lot of transition animations
 fix page size problems
 fix gif
 fix is_typing
+fix message childs
+change order of chats when message is recieved
+
 
 
 # LATER #

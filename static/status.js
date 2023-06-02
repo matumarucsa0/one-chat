@@ -35,7 +35,9 @@ function isTypingEmit(){
 var typing_users = new Set()
 var time = Date.now()
 socket.on("is_typing", function (data){
-    typing_users.add(data["user"])
+    if (data['room'] == room){
+        typing_users.add(data["user"])
+    }
 })
 
 function updateStatus(){
