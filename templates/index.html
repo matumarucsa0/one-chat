@@ -35,13 +35,7 @@
             </div>
         </div>
         
-        <div class="account">
-            <a href="/t" style="position: fixed; right: 4%; top: 2%;">
-                <div class="emote-container">
-                    <img class="profile-pic-message" src="/static/profile-pic/{{profile_pic}}">
-                </div>
-            </a>
-        </div>
+        
 
         <div id="overlay2" onclick="close_get_users()"></div>
 
@@ -54,221 +48,244 @@
             </div>
         </div>
         
-        <div class="{% if group.group %}main-div-group{% else %}main-div{% endif %}">
-            <div class="side-bar">
-                <button class="add-chat" onclick="get_users_direct()">Add chat</button>
-                <button id="b" class="add-chat" onclick="get_users_group()">Add group</button>
-                {% for r in rooms %}
-                    <a {% if r[0]|string != 'room' %}href="/room/{{r[0]}}"{% endif %} chat_id="chat-{{r[0]}}" style="display: block;" >
-                        <div class="{% if r[0]|string == room %}chat-selected{% else %}chat-select{% endif %}">
-                            <section style="position: relative;">
-                                <img src="{{r[2]}}">
-                                {% if r[3]|string == 'direct-chat' %}
-                                <svg style="position:absolute;" width="10" height="10" >
-                                    <circle r="5" cx="5" cy="5" fill="#F23F43" user_id="{{r[4]}}" class="stat"></circle>
-                                </svg>
-                                {% endif %}
-                            </section>
-                            {% if r[3]|string == 'direct-chat' %}
-                            <div><p>{{r[1]}}</p></div>
-                            {% else %}
-                                <div style="padding-top: 5px;">
-                                    <p>{{r[1]}}</p>
-                                    <p class="user-amount">{{group_user_amount[r[0]]}} Members</p>
-                                </div>
-                            {% endif%}
-                        </div>
-                    </a>
-                {% endfor %}
-
-            </div>
-            <div class="main-">
-                
-                <div class="messages" id="massage_box" style="height: calc(100vh - 77.65625px);">
-                    {% for message in messages %}
-                        {% if message["status"] =="child" %}
-                            <div class="message" style="margin-bottom: 0;" child="">
-                                <div></div>
-                                {% if "image_src" in message %}
-                                            <img style="max-width: 300px; max-height: 300px; margin-top: 4px; margin-bottom: 4px;" src="{{message['image_src']}}">
-                                {% else %}
-                                    <div class="text-bottom" style="margin-top: 4px;">
-                                        {% if "only-emote" in message %}
-                                        {%for content in message["message_content"]%}
-                                            {% if "img--" in content %}
-                                                    <img style="max-width: 50px; max-height: 50px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
-                                            {% else %}
-                                                <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% else %}
-                                        {%for content in message["message_content"]%}
-                                            {% if "img--" in content %}
-                                                    <img style="max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
-                                            {% else %}
-                                                <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
-                                            {% endif %}
-                                        {% endfor %}
+        <div class="main-div">
+            <div class="side-main">
+                <div class="side-bar">
+                    <button class="add-chat" onclick="get_users_direct()">Add chat</button>
+                    <button id="b" class="add-chat" onclick="get_users_group()">Add group</button>
+                    {% for r in rooms %}
+                        <a {% if r[0]|string != 'room' %}href="/room/{{r[0]}}"{% endif %} chat_id="chat-{{r[0]}}" style="display: block;" >
+                            <div class="{% if r[0]|string == room %}chat-selected{% else %}chat-select{% endif %}">
+                                <section style="position: relative;">
+                                    <img src="{{r[2]}}">
+                                    {% if r[3]|string == 'direct-chat' %}
+                                    <svg style="position:absolute;" width="10" height="10" >
+                                        <circle r="5" cx="5" cy="5" fill="#F23F43" user_id="{{r[4]}}" class="stat"></circle>
+                                    </svg>
                                     {% endif %}
+                                </section>
+                                {% if r[3]|string == 'direct-chat' %}
+                                <div><p>{{r[1]}}</p></div>
+                                {% else %}
+                                    <div style="padding-top: 5px;">
+                                        <p>{{r[1]}}</p>
+                                        <p class="user-amount">{{group_user_amount[r[0]]}} Members</p>
                                     </div>
-                                {% endif %}
+                                {% endif%}
                             </div>
-                        {% else %}
-                            {% if message["status"] == "parent" %}
-                                <div class="message" style="margin-bottom: 0;">
-                                    <div class="emote-container">
-                                        <img class="profile-pic-message" src="/static/profile-pic/{{message['profile_picture']}}" onclick="show_profile('{{message.user_id}}')">
-                                    </div>
-                                    <div>
-                                        <p class="text-top">{{message["username"]}}  {{message["date"]}}</p>
-                                        
-                                        {% if "image_src" in message %}
-                                            <img style="max-width: 300px; max-height: 300px" src="{{message['image_src']}}">
-                                        {% else %}
-                                            <div class="text-bottom">
-                                                {% if "only-emote" in message %}
-                                                    {%for content in message["message_content"]%}
-                                                        {% if "img--" in content %}
-                                                                <img style="max-width: 50px; max-height: 50px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
-                                                        {% else %}
-                                                            <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                {% else %}
-                                                    {%for content in message["message_content"]%}
-                                                        {% if "img--" in content %}
-                                                                <img style="max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
-                                                        {% else %}
-                                                            <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                {% endif %}
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            {% else %}
-                                <div class="message">
-                                    <div class="emote-container">
-                                        <img  class="profile-pic-message" src="/static/profile-pic/{{message['profile_picture']}}" onclick="show_profile('{{message.user_id}}')">
-                                    </div>
-                                    <div>
-                                        <p class="text-top">{{message["username"]}}  {{message["date"]}}</p>
-                                        
-                                        {% if "image_src" in message %}
-                                            <img style="max-width: 300px; max-height: 300px" src="{{message['image_src']}}">
-                                        {% else %}
-                                            <div class="text-bottom">
-                                                {% if "only-emote" in message %}
-                                                    {%for content in message["message_content"]%}
-                                                        {% if "img--" in content %}
-                                                                <img style="max-width: 50px; max-height: 50px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
-                                                        {% else %}
-                                                            <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                {% else %}
-                                                    {%for content in message["message_content"]%}
-                                                        {% if "img--" in content %}
-                                                                <img style="max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
-                                                        {% else %}
-                                                            <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                {% endif %}
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            {% endif %}
-                        {% endif %}
+                        </a>
                     {% endfor %}
-
-                    
-
-                    <div id="anchor"></div>
                 </div>
-
-                <div class="send" id="send">
-                    <div class="box" id="box">
-                        <div {% if group.group %}style="width: calc(100vw - 600px)"{% else %}style="width: calc(100vw - 360px)"{% endif %} contenteditable id="post-content" class="text-input" style="position: relative;"></div>
-                        <p id="is_typing_element">HEY</p>
-                        <div class="dropup2">
-                            <button onclick="dropup('dropup-content2', 'dropup-content')" class="dropbtn">
-                                <svg width="24" height="24" class="icon-1d5zch" aria-hidden="true" role="img" viewBox="0 0 24 24">
-                                    <path class="gif-path" d="m2 2c-1.1046 0-2 0.89543-2 2v16c0 1.1046 0.89543 2 2 2h20c1.1046 0 2-0.8954 2-2v-16c0-1.1046-0.8954-2-2-2h-20zm2.4846 13.931c0.55833 0.375 1.2 0.5625 1.925 0.5625 0.96667 0 1.6958-0.3333 2.1875-1l0.2375 0.825h1.475v-4.9h-3.7625v1.625h1.9875v1.075c-0.15833 0.225-0.38333 0.4042-0.675 0.5375-0.28333 0.125-0.59583 0.1875-0.9375 0.1875-0.76667 0-1.3542-0.2458-1.7625-0.7375-0.40833-0.4916-0.6125-1.1916-0.6125-2.1 0-0.9 0.20417-1.5958 0.6125-2.0874 0.40833-0.5 0.99583-0.75 1.7625-0.75 0.84167 0 1.475 0.39166 1.9 1.175l1.4125-1.0124c-0.30003-0.575-0.74586-1.0208-1.3375-1.3375-0.58333-0.31667-1.2458-0.475-1.9875-0.475-0.875 0-1.6292 0.19166-2.2625 0.575-0.625 0.38333-1.1042 0.9125-1.4375 1.5875-0.325 0.67495-0.4875 1.45-0.4875 2.325 0 0.8834 0.15417 1.6667 0.4625 2.35 0.30833 0.675 0.74167 1.2 1.3 1.575zm7.4509 0.3875h1.825v-8.625h-1.825v8.625zm3.5767 0h1.825v-3.275h3.2v-1.65h-3.2v-2.05h3.9375v-1.65h-5.7625v8.625z" clip-rule="evenodd" fill-rule="evenodd" fill="currentColor"></path>
-                                </svg>
-                            </button>
-                            <div class="dropup-content2" id="dropup-content2" style="display: none;">
-                                <div class="top-bar">
-                                    <div class="top-bar-selection">
-                                        <button class="top-bar-button-active">gifs</button>
-                                        <button onclick="dropup('dropup-content', 'dropup-content2')">emotes</button>
-                                    </div>
-                                    <div class="top-bar-search">
-                                        <div class="top-bar-search-bar">
-                                            <input id="gif-search" oninput="render_gif()" autocomplete="off">
-                                            <svg class="icon-18rqoe" aria-hidden="true" role="img" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M21.707 20.293L16.314 14.9C17.403 13.504 18 11.799 18 10C18 7.863 17.167 5.854 15.656 4.344C14.146 2.832 12.137 2 10 2C7.863 2 5.854 2.832 4.344 4.344C2.833 5.854 2 7.863 2 10C2 12.137 2.833 14.146 4.344 15.656C5.854 17.168 7.863 18 10 18C11.799 18 13.504 17.404 14.9 16.314L20.293 21.706L21.707 20.293ZM10 16C8.397 16 6.891 15.376 5.758 14.243C4.624 13.11 4 11.603 4 10C4 8.398 4.624 6.891 5.758 5.758C6.891 4.624 8.397 4 10 4C11.603 4 13.109 4.624 14.242 5.758C15.376 6.891 16 8.398 16 10C16 11.603 15.376 13.11 14.242 14.243C13.109 15.376 11.603 16 10 16Z"></path></svg>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <div id="gif-container"></div>
-                                </div>
-                            </div>
-                        
-                            <button onclick="dropup('dropup-content', 'dropup-content2')" class="dropbtn" style="border-top-right-radius: 4px; border-bottom-right-radius: 4px;">
-                                <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier">
-                                        <path class="emote-path" d="M8 14C8 14 9.5 16 12 16C14.5 16 16 14 16 14M15 9H15.01M9 9H9.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="stroke: #B5BAC1;"></path></g>
-                                </svg>
-                            </button>
-                            
-                            <div class="dropup-content" id="dropup-content" style="display: none;">
-                                <div class="top-bar">
-                                    <div class="top-bar-selection">
-                                        <button onclick="dropup('dropup-content2', 'dropup-content')">gifs</button>
-                                        <button class="top-bar-button-active">emotes</button>
-                                    </div>
-                                    <div class="top-bar-search">
-                                        <div class="top-bar-search-bar">
-                                            <input autocomplete="off" id="top-bar-search-input">
-                                            <svg class="icon-18rqoe" aria-hidden="true" role="img" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M21.707 20.293L16.314 14.9C17.403 13.504 18 11.799 18 10C18 7.863 17.167 5.854 15.656 4.344C14.146 2.832 12.137 2 10 2C7.863 2 5.854 2.832 4.344 4.344C2.833 5.854 2 7.863 2 10C2 12.137 2.833 14.146 4.344 15.656C5.854 17.168 7.863 18 10 18C11.799 18 13.504 17.404 14.9 16.314L20.293 21.706L21.707 20.293ZM10 16C8.397 16 6.891 15.376 5.758 14.243C4.624 13.11 4 11.603 4 10C4 8.398 4.624 6.891 5.758 5.758C6.891 4.624 8.397 4 10 4C11.603 4 13.109 4.624 14.242 5.758C15.376 6.891 16 8.398 16 10C16 11.603 15.376 13.11 14.242 14.243C13.109 15.376 11.603 16 10 16Z"></path></svg>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="emote-container-dropsection">
-                                    {% for emote in emotes %}
-                                        <li>
-                                            <img loading="lazy" onclick="add_emote('{{emote}}')" src="/static/emotes/{{emote}}">
-                                        </li>
-                                    {% endfor %}
-                                </div>
-                            </div>
+                <div class="user-info">
+                    <div style="height: 60px;">
+                        <div class="user-box" onclick='onclick=show_profile("{{user_id}}")'>
+                            <img src="/static/profile-pic/{{profile_pic}}" alt="profile-pic">
+                            <p>{{username}}</p>
+                        </div> 
+                    </div>
+                    <div style="height: 60px;">
+                        <div class="settings" onclick="window.location.replace('/t')">
+                            <svg aria-hidden="true" role="img" width="30" height="30" viewBox="0 0 24 24">
+                                <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M19.738 10H22V14H19.739C19.498 14.931 19.1 15.798 18.565 16.564L20 18L18 20L16.565 18.564C15.797 19.099 14.932 19.498 14 19.738V22H10V19.738C9.069 19.498 8.203 19.099 7.436 18.564L6 20L4 18L5.436 16.564C4.901 15.799 4.502 14.932 4.262 14H2V10H4.262C4.502 9.068 4.9 8.202 5.436 7.436L4 6L6 4L7.436 5.436C8.202 4.9 9.068 4.502 10 4.262V2H14V4.261C14.932 4.502 15.797 4.9 16.565 5.435L18 3.999L20 5.999L18.564 7.436C19.099 8.202 19.498 9.069 19.738 10ZM12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16Z"></path>
+                            </svg>
                         </div>
-                        
-                        
                     </div>
                 </div>
             </div>
-            {% if group.group %}
-                <div>
+            <div style="display: grid; grid-template-columns: 100%;">
+                <div class="top-nav-bar">
                     
-                    {% for user in group.users %}
-                        <div class="chat-select">
-                            <section style="position: relative;">
-                                <img src="/static/profile-pic/{{user[2]}}">
-                                <svg style="position:absolute;" width="10" height="10" >
-                                    <circle r="5" cx="5" cy="5" fill="#F23F43" user_id="{{user[0]}}" class="stat"></circle>
-                                </svg>
-                            </section>
+                </div>
+                <div {% if group.group %}class="main-div-group"{% endif %}>
+                    <div class="main-">
+                        
+                        <div class="messages" id="massage_box" style="height: calc(100vh - 127.65625px);">
+                            {% for message in messages %}
+                                {% if message["status"] =="child" %}
+                                    <div class="message" style="margin-bottom: 0;" child="">
+                                        <div></div>
+                                        {% if "image_src" in message %}
+                                                    <img style="max-width: 300px; max-height: 300px; margin-top: 4px; margin-bottom: 4px;" src="{{message['image_src']}}">
+                                        {% else %}
+                                            <div class="text-bottom" style="margin-top: 4px;">
+                                                {% if "only-emote" in message %}
+                                                {%for content in message["message_content"]%}
+                                                    {% if "img--" in content %}
+                                                            <img style="max-width: 50px; max-height: 50px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
+                                                    {% else %}
+                                                        <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% else %}
+                                                {%for content in message["message_content"]%}
+                                                    {% if "img--" in content %}
+                                                            <img style="max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
+                                                    {% else %}
+                                                        <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    {% if message["status"] == "parent" %}
+                                        <div class="message" style="margin-bottom: 0;">
+                                            <div class="emote-container">
+                                                <img class="profile-pic-message" src="/static/profile-pic/{{message['profile_picture']}}" onclick="show_profile('{{message.user_id}}')">
+                                            </div>
+                                            <div>
+                                                <p class="text-top">{{message["username"]}}  {{message["date"]}}</p>
+                                                
+                                                {% if "image_src" in message %}
+                                                    <img style="max-width: 300px; max-height: 300px" src="{{message['image_src']}}">
+                                                {% else %}
+                                                    <div class="text-bottom">
+                                                        {% if "only-emote" in message %}
+                                                            {%for content in message["message_content"]%}
+                                                                {% if "img--" in content %}
+                                                                        <img style="max-width: 50px; max-height: 50px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
+                                                                {% else %}
+                                                                    <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            {%for content in message["message_content"]%}
+                                                                {% if "img--" in content %}
+                                                                        <img style="max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
+                                                                {% else %}
+                                                                    <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <div class="message">
+                                            <div class="emote-container">
+                                                <img  class="profile-pic-message" src="/static/profile-pic/{{message['profile_picture']}}" onclick="show_profile('{{message.user_id}}')">
+                                            </div>
+                                            <div>
+                                                <p class="text-top">{{message["username"]}}  {{message["date"]}}</p>
+                                                
+                                                {% if "image_src" in message %}
+                                                    <img style="max-width: 300px; max-height: 300px" src="{{message['image_src']}}">
+                                                {% else %}
+                                                    <div class="text-bottom">
+                                                        {% if "only-emote" in message %}
+                                                            {%for content in message["message_content"]%}
+                                                                {% if "img--" in content %}
+                                                                        <img style="max-width: 50px; max-height: 50px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
+                                                                {% else %}
+                                                                    <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            {%for content in message["message_content"]%}
+                                                                {% if "img--" in content %}
+                                                                        <img style="max-width: 22px; max-height: 22px; display: inline-block; vertical-align: middle;" src="/static/emotes/{{content[5:]}}">
+                                                                {% else %}
+                                                                    <p style="display: inline-block; margin-top: 0px; margin-bottom: 0px; ">{{content}}</p>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+
                             
-                            <div>
-                                <p>{{user[1]}}</p>
+
+                            <div id="anchor"></div>
+                        </div>
+
+                        <div class="send" id="send">
+                            <div class="box" id="box">
+                                <div {% if group.group %}style="width: calc(100vw - 600px)"{% else %}style="width: calc(100vw - 390px)"{% endif %} contenteditable id="post-content" class="text-input" style="position: relative;"></div>
+                                <p id="is_typing_element">HEY</p>
+                                <div class="dropup2">
+                                    <button onclick="dropup('dropup-content2', 'dropup-content')" class="dropbtn">
+                                        <svg width="24" height="24" class="icon-1d5zch" aria-hidden="true" role="img" viewBox="0 0 24 24">
+                                            <path class="gif-path" d="m2 2c-1.1046 0-2 0.89543-2 2v16c0 1.1046 0.89543 2 2 2h20c1.1046 0 2-0.8954 2-2v-16c0-1.1046-0.8954-2-2-2h-20zm2.4846 13.931c0.55833 0.375 1.2 0.5625 1.925 0.5625 0.96667 0 1.6958-0.3333 2.1875-1l0.2375 0.825h1.475v-4.9h-3.7625v1.625h1.9875v1.075c-0.15833 0.225-0.38333 0.4042-0.675 0.5375-0.28333 0.125-0.59583 0.1875-0.9375 0.1875-0.76667 0-1.3542-0.2458-1.7625-0.7375-0.40833-0.4916-0.6125-1.1916-0.6125-2.1 0-0.9 0.20417-1.5958 0.6125-2.0874 0.40833-0.5 0.99583-0.75 1.7625-0.75 0.84167 0 1.475 0.39166 1.9 1.175l1.4125-1.0124c-0.30003-0.575-0.74586-1.0208-1.3375-1.3375-0.58333-0.31667-1.2458-0.475-1.9875-0.475-0.875 0-1.6292 0.19166-2.2625 0.575-0.625 0.38333-1.1042 0.9125-1.4375 1.5875-0.325 0.67495-0.4875 1.45-0.4875 2.325 0 0.8834 0.15417 1.6667 0.4625 2.35 0.30833 0.675 0.74167 1.2 1.3 1.575zm7.4509 0.3875h1.825v-8.625h-1.825v8.625zm3.5767 0h1.825v-3.275h3.2v-1.65h-3.2v-2.05h3.9375v-1.65h-5.7625v8.625z" clip-rule="evenodd" fill-rule="evenodd" fill="currentColor"></path>
+                                        </svg>
+                                    </button>
+                                    <div class="dropup-content2" id="dropup-content2" style="display: none;">
+                                        <div class="top-bar">
+                                            <div class="top-bar-selection">
+                                                <button class="top-bar-button-active">gifs</button>
+                                                <button onclick="dropup('dropup-content', 'dropup-content2')">emotes</button>
+                                            </div>
+                                            <div class="top-bar-search">
+                                                <div class="top-bar-search-bar">
+                                                    <input id="gif-search" oninput="render_gif()" autocomplete="off">
+                                                    <svg class="icon-18rqoe" aria-hidden="true" role="img" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M21.707 20.293L16.314 14.9C17.403 13.504 18 11.799 18 10C18 7.863 17.167 5.854 15.656 4.344C14.146 2.832 12.137 2 10 2C7.863 2 5.854 2.832 4.344 4.344C2.833 5.854 2 7.863 2 10C2 12.137 2.833 14.146 4.344 15.656C5.854 17.168 7.863 18 10 18C11.799 18 13.504 17.404 14.9 16.314L20.293 21.706L21.707 20.293ZM10 16C8.397 16 6.891 15.376 5.758 14.243C4.624 13.11 4 11.603 4 10C4 8.398 4.624 6.891 5.758 5.758C6.891 4.624 8.397 4 10 4C11.603 4 13.109 4.624 14.242 5.758C15.376 6.891 16 8.398 16 10C16 11.603 15.376 13.11 14.242 14.243C13.109 15.376 11.603 16 10 16Z"></path></svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div id="gif-container"></div>
+                                        </div>
+                                    </div>
+                                
+                                    <button onclick="dropup('dropup-content', 'dropup-content2')" class="dropbtn" style="border-top-right-radius: 4px; border-bottom-right-radius: 4px;">
+                                        <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier">
+                                                <path class="emote-path" d="M8 14C8 14 9.5 16 12 16C14.5 16 16 14 16 14M15 9H15.01M9 9H9.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="stroke: #B5BAC1;"></path></g>
+                                        </svg>
+                                    </button>
+                                    
+                                    <div class="dropup-content" id="dropup-content" style="display: none;">
+                                        <div class="top-bar">
+                                            <div class="top-bar-selection">
+                                                <button onclick="dropup('dropup-content2', 'dropup-content')">gifs</button>
+                                                <button class="top-bar-button-active">emotes</button>
+                                            </div>
+                                            <div class="top-bar-search">
+                                                <div class="top-bar-search-bar">
+                                                    <input autocomplete="off" id="top-bar-search-input">
+                                                    <svg class="icon-18rqoe" aria-hidden="true" role="img" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M21.707 20.293L16.314 14.9C17.403 13.504 18 11.799 18 10C18 7.863 17.167 5.854 15.656 4.344C14.146 2.832 12.137 2 10 2C7.863 2 5.854 2.832 4.344 4.344C2.833 5.854 2 7.863 2 10C2 12.137 2.833 14.146 4.344 15.656C5.854 17.168 7.863 18 10 18C11.799 18 13.504 17.404 14.9 16.314L20.293 21.706L21.707 20.293ZM10 16C8.397 16 6.891 15.376 5.758 14.243C4.624 13.11 4 11.603 4 10C4 8.398 4.624 6.891 5.758 5.758C6.891 4.624 8.397 4 10 4C11.603 4 13.109 4.624 14.242 5.758C15.376 6.891 16 8.398 16 10C16 11.603 15.376 13.11 14.242 14.243C13.109 15.376 11.603 16 10 16Z"></path></svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="emote-container-dropsection">
+                                            {% for emote in emotes %}
+                                                <li>
+                                                    <img loading="lazy" onclick="add_emote('{{emote}}')" src="/static/emotes/{{emote}}">
+                                                </li>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                
                             </div>
                         </div>
-                    {% endfor %}
+                    </div>
+                    {% if group.group %}
+                        <div>
+                            
+                            {% for user in group.users %}
+                                <div class="chat-select">
+                                    <section style="position: relative;">
+                                        <img src="/static/profile-pic/{{user[2]}}">
+                                        <svg style="position:absolute;" width="10" height="10" >
+                                            <circle r="5" cx="5" cy="5" fill="#F23F43" user_id="{{user[0]}}" class="stat"></circle>
+                                        </svg>
+                                    </section>
+                                    
+                                    <div>
+                                        <p>{{user[1]}}</p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
-           {% endif %}
+            </div>
         </div>
     </body>
 
@@ -291,11 +308,11 @@
             
             let is_attach = document.getElementById("attach")
             if (is_attach){
-                document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - "+(entry.contentRect.height + 77.656+ 250)+"px);")//!!
+                document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - "+(entry.contentRect.height + 77.656+ 250 + 50)+"px);")//!!
             }
             else{
                 console.log("ALERT!!!")
-                document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - "+(entry.contentRect.height + 77.656)+"px);")//!!
+                document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - "+(entry.contentRect.height + 77.656 + 50)+"px);")//!!
             }
 
             document.getElementById('anchor').scrollIntoView(true);

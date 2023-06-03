@@ -8,12 +8,32 @@ body{
 
 .main-div{
     display: grid;
-    grid-template-columns: 250px auto;
+    grid-template-columns: 250px calc(100% - 250px);
+    height: 100vh;
+}
+
+.top-nav-bar{
+    height: 50px;
+    width: 100%;
+    background-color: rgb(49,51,56);
+    border-bottom: 2px solid rgb(30,31,34);
 }
 
 .main-div-group{
     display: grid;
-    grid-template-columns: 230px calc(100% - 460px) 230px;
+    grid-template-columns: calc(100% - 230px) 230px;
+}
+
+.side-main{
+    width: 250px;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 250px;
+}
+
+.side-bar{
+    border-right: 2px solid rgb(30,31,34);
+    height: calc(100vh - 60px);
 }
 
 .side-bar a{
@@ -24,6 +44,77 @@ body{
     cursor: pointer;
     text-decoration: none !important;
 
+}
+
+.user-info{
+    width: 250px;
+    height: 60px;
+    background-color: #232428;
+    display: grid;
+    grid-template-columns: 190px 60px;
+}
+
+.user-box{
+    display: grid;
+    margin-top: 7.5px !important;
+
+    grid-template-columns: 60px 90px;
+    width: 150px;
+    height: 45px !important;
+    border-radius: 5px;
+    margin-left: 10px;
+}
+
+.user-box:hover{
+    background-color: #3D3E45;
+    cursor: pointer;
+}
+
+.user-box div{
+    max-height: 60px;
+}
+
+.user-box img{
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    margin-top: 5px;
+    margin-left: 12.5px;
+}
+
+.user-box p{
+    margin: 0px;
+    font-size: 19px;
+    color: white;
+    display: block;
+    margin-top: 12px;
+}
+
+.settings{
+    margin-right: 10px;
+    margin-top: 12.5px;
+    height: 35px;
+    width: 35px;
+    border-radius: 5px;
+}
+
+.settings:hover{
+    background-color: #3D3E45;
+}
+
+
+.settings svg{
+    width: 30px;
+    height: 30px;
+    margin-left: 2.5px;
+    margin-top: 2.5px;
+    color: #B5BAC1 !important;
+}
+
+
+.settings:hover, svg{
+    color: rgb(219,222,225);
+    cursor: pointer;
 }
 
 .chat-select, .chat-selected, .group-member{
@@ -221,14 +312,13 @@ body{
 }
 
 .account{
-    position: absolute;
-    right: 0;
-    top: 0;
+    display: inline-block;
+
 }
 
 
 .main-{
-    height: 100vh;
+    height: calc(100vh - 50px);
     background-color: #36393F;
 }
 
