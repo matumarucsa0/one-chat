@@ -2,16 +2,18 @@ body{
     margin: 0;
     background-color: rgb(47, 49, 54);
     font-family: Arial, Helvetica, sans-serif;
+    overflow-x: hidden;
+    overflow-y: hidden;
 }
 
 .main-div{
     display: grid;
-    grid-template-columns: 20vw 80vw;
+    grid-template-columns: 250px auto;
 }
 
 .main-div-group{
     display: grid;
-    grid-template-columns: 20vw 60vw 20vw;
+    grid-template-columns: 230px calc(100% - 460px) 230px;
 }
 
 .side-bar a{
@@ -81,7 +83,7 @@ body{
 #is_typing_element{
     position: absolute;
     margin: 0px;
-    bottom: 97px;
+    bottom: 77px;
     font-size: 13px;
     color: #DCDDDE;
 }
@@ -243,19 +245,20 @@ body{
 
 .text-input{
     width: 100%;
-    border: 1px solid black;
+    border: none;
     padding: 10px;
     font-size: 20px;
     background-color: rgb(64, 68, 75);
     color: white;
-    border: none;
-    border-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-top-left-radius: 4px;
+    min-height: 24px;
 }
 
 .text-input img{
     max-width: 23px; 
     max-height: 23px; 
-    width: 100%; 
+    width: 100%;
     height: 100%;
     vertical-align: middle;
 }
@@ -266,17 +269,19 @@ body{
 }
 
 .send{
-    width: 600px;
+    width: auto;
     display: grid;
     margin: 0 auto;
     margin-top: 30px;
-    margin-bottom: 30px;
+    margin-bottom: 5px;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
 .box{
-    width: 600px;
+    width: 100%;
     display: grid;
-    grid-template-columns: 4fr 2fr;
+    grid-template-columns: auto 80px;
 }
 
 
@@ -440,15 +445,7 @@ body{
 
 
 
-.dropbtn {
-    background-color: #DCDDDE;
-    color: #36393F;
-    width: 100%;
-    height: 100%;
-    border: none;
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;  
-}
+
   
   .dropup {
     position: relative;
@@ -473,19 +470,33 @@ body{
 
 
 
-  .dropbtn2 {
-    background-color: #DCDDDE;
-    color: #36393F;
+  .dropbtn{
+    background-color: rgb(64, 68, 75);
     width: 100%;
     height: 100%;
-    border: none; 
+    border: none;
 }
+    .dropbtn:hover {
+        cursor: pointer;
+    }
+
+    .gif-path{
+        fill: #B5BAC1 !important;
+    }
+
+    .dropbtn:hover .gif-path{
+        fill: #DBDEE1 !important;
+    }
+
+    .dropbtn:hover .emote-path{
+        stroke: #DBDEE1 !important;
+    }
   
   .dropup2 {
     position: relative;
     display: inline-block;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 40px 40px;
     height: 100%;
     width: 100%;
   }
@@ -493,11 +504,12 @@ body{
   .dropup-content2, .dropup-content {
     position: absolute;
     background-color: #2B2D31;
-    width: 550px;
-    height: 500px;
+    width: 450px;
+    height: 425px;
     bottom: 50px;
     z-index: 1;
-    left: -50%;
+    right: calc(100% - 80px);
+    
   }
   
 
@@ -553,18 +565,19 @@ body{
 }
 
 .top-bar-search-bar{
-    margin: 0 auto;
     display: grid;
-    grid-template-columns: 470px 30px;
-    width: 500px;
+    grid-template-columns: auto 30px;
     background-color: #1E1F22;
     border: none;
     border-radius: 4px;
     outline: none;
+    margin-left: 25px;
+    margin-right: 25px;
+    width: auto;
 }
 
 #top-bar-search-input, #gif-search{
-    width: 470px;
+    width: auto;
     box-sizing: border-box;
     height: 40px;
     background-color: #1E1F22;
@@ -585,17 +598,38 @@ body{
     display: grid;
     grid-row: 1 / -1;
     grid-template-columns: repeat(2, 1fr);
+    height: 325px;
+    overflow-y: scroll;
 }
 
 #gif-container img{
     padding: 5px;
-    width: 231px;
+    width: 205px;
     border: none;
     border-radius: 12px;
 }
 
 #gif-container img:hover{
     cursor: pointer;
+}
+
+.emote-container-dropsection{
+    height: 325px;
+    overflow-y: scroll;
+    width: auto;
+    margin: 0 auto;
+}
+/* emote contaier*/
+.emote-container-dropsection li{ 
+    width: 38.625px;
+    width: 38.625px;
+}
+
+.emote-container-dropsection li img{
+    max-width: 38.625px; 
+    max-height: 38.625px; 
+    margin: 0 auto; 
+    display: block;
 }
 
 #overlay {

@@ -3,20 +3,20 @@ function send_status(){
 }
 
 socket.on("users-online", function (data){
-    users = data['users_online']
-    statuses = document.getElementsByClassName("stat")
-    for (i=0; i<statuses.length; i++){
-        if (users.includes(String(statuses[i].getAttribute("user_id")))){
-            statuses[i].setAttribute("fill", "#23a55a")
+    let users = data['users_online']
+    let statuses = document.getElementsByClassName("stat")
+    for (const user_stauts of statuses){
+        if (users.includes(String(user_stauts.getAttribute("user_id")))){
+            user_stauts.setAttribute("fill", "#23a55a")
         }
         else{
-            statuses[i].setAttribute("fill", "#F23F43")
+            user_stauts.setAttribute("fill", "#F23F43")
         }
     }
 })
 
-var isTypingStaus;
-post_content = document.getElementById("post-content") 
+let isTypingStaus;
+let post_content = document.getElementById("post-content") 
 post_content.addEventListener("input", function (){
     if (post_content.innerHTML != ""){
         isTypingStaus = true
@@ -32,10 +32,10 @@ function isTypingEmit(){
     }
 }
 
-var typing_users = new Set()
-var time = Date.now()
+let typing_users = new Set()
+let time = Date.now()
 socket.on("is_typing", function (data){
-    if (data['room'] == room){
+    if (data['room'] == room && data['user_id'] != user_id){
         typing_users.add(data["user"])
     }
 })
@@ -43,12 +43,12 @@ socket.on("is_typing", function (data){
 function updateStatus(){
     if (time <= Date.now() - 200){
         
-        typing_users_array = Array.from(typing_users)
+        let typing_users_array = Array.from(typing_users)
         typing_users_array = typing_users_array.sort()
-        is_typing_element = document.getElementById("is_typing_element")
+        let is_typing_element = document.getElementById("is_typing_element")
         if (typing_users_array.length > 0){
-            is_typing_p = ""
-            for (userName of typing_users_array){
+            let is_typing_p = ""
+            for (let userName of typing_users_array){
                 is_typing_p += `${userName} is typing..., `            
             }
             is_typing_element.style.display = "block"

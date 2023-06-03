@@ -1,4 +1,4 @@
-socket.on('massage', function(data){ 
+socket.on('massage', function (data){ 
     console.log("MESSAGE!")
     chat = document.querySelector(`a[chat_id='chat-${data["room"]}']`)
     chat.remove()
@@ -9,21 +9,21 @@ socket.on('massage', function(data){
         return
         
     }
-    var verifier = true
+    let verifier = true
 
     if (Array.from(document.getElementsByClassName("message")).length == 0){
         
     }
     // if last message is child checks if this message can be child -> appends itself as ""/child/parent    
     else if (Array.from(document.getElementsByClassName("message")).slice(-1)[0].hasAttribute("child")){
-        var ar = Array.from(document.getElementsByClassName("message")).reverse()
+        let ar = Array.from(document.getElementsByClassName("message")).reverse()
         let index = 0
         
         while (index < ar.length){
             
             if (!ar[index].hasAttribute("child")){ //not child
-                var text_top_old = ar[index].getElementsByClassName("text-top")[0].innerHTML.split(" ")
-                var text_top_new = data['user'].split(" ")
+                let text_top_old = ar[index].getElementsByClassName("text-top")[0].innerHTML.split(" ")
+                let text_top_new = data['user'].split(" ")
 
                 
                 if (text_top_old[0] == text_top_new[0] &&
@@ -32,9 +32,9 @@ socket.on('massage', function(data){
                         
                         //ar[0].setAttribute("style", "margin-bottom: 0;")
 
-                        var box = document.getElementById("massage_box")
+                        let box = document.getElementById("massage_box")
     
-                        var message = document.createElement('div')
+                        let message = document.createElement('div')
                         message.setAttribute("class", "message")
                         message.setAttribute("style", "margin-bottom: 0;")
                         message.setAttribute("child", "")
@@ -44,7 +44,7 @@ socket.on('massage', function(data){
                         console.log("img_src" in data)
                         if ("img_src" in data){ // attachment
                             console.log(data['img_src'])
-                            var i = document.createElement("img")
+                            let i = document.createElement("img")
                             i.setAttribute("style", "max-width: 300px; max-height: 300px; margin-top: 4px; margin-bottom: 4px;")
                             i.setAttribute("src", data["img_src"])
                             message.appendChild(i)
@@ -54,17 +54,17 @@ socket.on('massage', function(data){
                             })
                         }
                         else{
-                            var div = document.createElement("div")
+                            let div = document.createElement("div")
                             div.setAttribute("class", "text-bottom")
                             div.setAttribute("style", "margin-top: 4px;")
 
-                            var message_array = data['chat']
+                            let message_array = data['chat']
                             i = 0
                             while (i < message_array.length){
                                 if ( message_array[i].includes("img--")){
                                     
 
-                                    var img_mes = document.createElement("img")
+                                    let img_mes = document.createElement("img")
                                     img_mes.setAttribute("src", "/static/emotes/"+message_array[i].slice(5))
                                     if (data['only_emotes']){
                                         img_mes.setAttribute("style", "max-width: 50px; max-height: 50px; display: inline-block; vertical-align: middle;")
@@ -78,7 +78,7 @@ socket.on('massage', function(data){
                                     })
                                 }
                                 else{
-                                    var p_mes = document.createElement("p")
+                                    let p_mes = document.createElement("p")
                                     p_mes.setAttribute("style", "display: inline-block; margin-top: 0px; margin-bottom: 0px; ")
                                     p_mes.innerHTML = message_array[i]
                                     div.appendChild(p_mes)
@@ -88,7 +88,7 @@ socket.on('massage', function(data){
                             message.appendChild(div)
                         }
                         
-                        var anchor = document.getElementById("anchor")
+                        let anchor = document.getElementById("anchor")
     
                         box.insertBefore(message, anchor);
                         verifier = false
@@ -101,17 +101,17 @@ socket.on('massage', function(data){
         }
     }   //if last element s child a child
     else{
-        var text_top_old = Array.from(document.getElementsByClassName("message")).slice(-1)[0].getElementsByClassName("text-top")[0].innerHTML.split(" ")
-        var text_top_new = data['user'].split(" ")
+        let text_top_old = Array.from(document.getElementsByClassName("message")).slice(-1)[0].getElementsByClassName("text-top")[0].innerHTML.split(" ")
+        let text_top_new = data['user'].split(" ")
         
         if (text_top_old[0] == text_top_new[0] && //create message as child
                     text_top_old[1] == text_top_new[1] &&
                     text_top_old[2].slice(0, 5) == text_top_new[2].slice(0, 5)){
                         Array.from(document.getElementsByClassName("message")).slice(-1)[0].setAttribute("style", "margin-bottom: 0;")
 
-                        var box = document.getElementById("massage_box")
+                        let box = document.getElementById("massage_box")
     
-                        var message = document.createElement('div')
+                        let message = document.createElement('div')
                         message.setAttribute("class", "message")
                         message.setAttribute("child", "")
                         message.setAttribute("style", "margin-bottom: 0;")
@@ -120,7 +120,7 @@ socket.on('massage', function(data){
 
                         if ("img_src" in data){ // attachment
             
-                            var i = document.createElement("img")
+                            let i = document.createElement("img")
                             i.setAttribute("style", "max-width: 300px; max-height: 300px; margin-top: 4px; margin-bottom: 4px;")
                             i.setAttribute("src", data["img_src"])
                             message.appendChild(i)
@@ -130,16 +130,16 @@ socket.on('massage', function(data){
                             })
                         }
                         else{
-                            var div = document.createElement("div")
+                            let div = document.createElement("div")
                             div.setAttribute("class", "text-bottom")
                             div.setAttribute("style", "margin-top: 4px;")
 
-                            var message_array = data['chat']
+                            let message_array = data['chat']
                             i = 0
                             while (i < message_array.length){
                                 if ( message_array[i].includes("img--")){
                                     
-                                    var img_mes = document.createElement("img")
+                                    let img_mes = document.createElement("img")
                                     img_mes.setAttribute("src", "/static/emotes/"+message_array[i].slice(5))
                                     if (data['only_emotes']){
                                         img_mes.setAttribute("style", "max-width: 50px; max-height: 50px; display: inline-block; vertical-align: middle;")
@@ -153,7 +153,7 @@ socket.on('massage', function(data){
                                     })
                                 }
                                 else{
-                                    var p_mes = document.createElement("p")
+                                    let p_mes = document.createElement("p")
                                     p_mes.setAttribute("style", "display: inline-block; margin-top: 0px; margin-bottom: 0px;")
                                     p_mes.innerHTML = message_array[i]
                                     div.appendChild(p_mes)
@@ -171,7 +171,7 @@ socket.on('massage', function(data){
                         }
                         
 
-                        var anchor = document.getElementById("anchor")
+                        let anchor = document.getElementById("anchor")
 
                         box.insertBefore(message, anchor);
                         verifier = false
@@ -181,15 +181,15 @@ socket.on('massage', function(data){
     if (verifier){
 
         
-        var box = document.getElementById("massage_box")
+        let box = document.getElementById("massage_box")
         
-        var message = document.createElement('div')
+        let message = document.createElement('div')
         message.setAttribute("class", "message")
 
         //profile pic
-        var profilepicb = document.createElement("div")
+        let profilepicb = document.createElement("div")
         profilepicb.setAttribute("class", "emote-container")
-        var profilepic = document.createElement("img")
+        let profilepic = document.createElement("img")
         profilepic.setAttribute("class","profile-pic-message")
         profilepic.setAttribute("src", "/static/profile-pic/"+data['profile_pic']) //fix?
         profilepic.setAttribute("onclick", "show_profile(" + data['user_id'] + ")")
@@ -198,17 +198,17 @@ socket.on('massage', function(data){
         message.appendChild(profilepicb)            
         
         //text
-        var d = document.createElement("div")
+        let d = document.createElement("div")
 
 
-        var name = document.createElement("p")
+        let name = document.createElement("p")
         name.innerHTML = data['user']
         name.setAttribute("class", "text-top")
         d.appendChild(name)
 
         if ("img_src" in data){ // attachment
             
-            var i = document.createElement("img")
+            let i = document.createElement("img")
             i.setAttribute("style", "max-width: 300px; max-height: 300px")
             i.setAttribute("src", data["img_src"])
             d.appendChild(i)
@@ -218,19 +218,19 @@ socket.on('massage', function(data){
             })
         }
         else{
-            var text_bottom = document.createElement("div")
+            let text_bottom = document.createElement("div")
             text_bottom.setAttribute("class", "text-bottom")
 
-            var mas = document.createElement('div')
+            let mas = document.createElement('div')
             mas.setAttribute("class", "text-bottom")
             
-            var message_array = data['chat']
+            let message_array = data['chat']
         
             i = 0
             while (i < message_array.length){
                 if ( message_array[i].includes("img--")){
                     
-                    var img_mes = document.createElement("img")
+                    let img_mes = document.createElement("img")
                     img_mes.setAttribute("src", "/static/emotes/"+message_array[i].slice(5))
 
                     if (data['only_emotes']){
@@ -245,7 +245,7 @@ socket.on('massage', function(data){
                     })
                 }
                 else{
-                    var p_mes = document.createElement("p")
+                    let p_mes = document.createElement("p")
                     p_mes.setAttribute("style", "display: inline-block; margin-top: 0px; margin-bottom: 0px;")
                     p_mes.innerHTML = message_array[i]
                     text_bottom.appendChild(p_mes)
@@ -259,7 +259,7 @@ socket.on('massage', function(data){
         message.appendChild(d)
         
         
-        var anchor = document.getElementById("anchor")
+        let anchor = document.getElementById("anchor")
         
         box.insertBefore(message, anchor);
     }

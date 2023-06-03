@@ -84,7 +84,7 @@
             </div>
             <div class="main-">
                 
-                <div class="messages" id="massage_box" style="height: calc(100vh - 102.65625px);">
+                <div class="messages" id="massage_box" style="height: calc(100vh - 77.65625px);">
                     {% for message in messages %}
                         {% if message["status"] =="child" %}
                             <div class="message" style="margin-bottom: 0;" child="">
@@ -190,11 +190,15 @@
                 </div>
 
                 <div class="send" id="send">
-                    <div class="box" id="box" style="max-width: 75vw;">
-                        <div contenteditable id="post-content" class="text-input" style="max-width: 480px; position: relative;"></div>
+                    <div class="box" id="box">
+                        <div {% if group.group %}style="width: calc(100vw - 600px)"{% else %}style="width: calc(100vw - 360px)"{% endif %} contenteditable id="post-content" class="text-input" style="position: relative;"></div>
                         <p id="is_typing_element">HEY</p>
                         <div class="dropup2">
-                            <button onclick="dropup('dropup-content2', 'dropup-content')" class="dropbtn2">Gif</button>
+                            <button onclick="dropup('dropup-content2', 'dropup-content')" class="dropbtn">
+                                <svg width="24" height="24" class="icon-1d5zch" aria-hidden="true" role="img" viewBox="0 0 24 24">
+                                    <path class="gif-path" d="m2 2c-1.1046 0-2 0.89543-2 2v16c0 1.1046 0.89543 2 2 2h20c1.1046 0 2-0.8954 2-2v-16c0-1.1046-0.8954-2-2-2h-20zm2.4846 13.931c0.55833 0.375 1.2 0.5625 1.925 0.5625 0.96667 0 1.6958-0.3333 2.1875-1l0.2375 0.825h1.475v-4.9h-3.7625v1.625h1.9875v1.075c-0.15833 0.225-0.38333 0.4042-0.675 0.5375-0.28333 0.125-0.59583 0.1875-0.9375 0.1875-0.76667 0-1.3542-0.2458-1.7625-0.7375-0.40833-0.4916-0.6125-1.1916-0.6125-2.1 0-0.9 0.20417-1.5958 0.6125-2.0874 0.40833-0.5 0.99583-0.75 1.7625-0.75 0.84167 0 1.475 0.39166 1.9 1.175l1.4125-1.0124c-0.30003-0.575-0.74586-1.0208-1.3375-1.3375-0.58333-0.31667-1.2458-0.475-1.9875-0.475-0.875 0-1.6292 0.19166-2.2625 0.575-0.625 0.38333-1.1042 0.9125-1.4375 1.5875-0.325 0.67495-0.4875 1.45-0.4875 2.325 0 0.8834 0.15417 1.6667 0.4625 2.35 0.30833 0.675 0.74167 1.2 1.3 1.575zm7.4509 0.3875h1.825v-8.625h-1.825v8.625zm3.5767 0h1.825v-3.275h3.2v-1.65h-3.2v-2.05h3.9375v-1.65h-5.7625v8.625z" clip-rule="evenodd" fill-rule="evenodd" fill="currentColor"></path>
+                                </svg>
+                            </button>
                             <div class="dropup-content2" id="dropup-content2" style="display: none;">
                                 <div class="top-bar">
                                     <div class="top-bar-selection">
@@ -209,11 +213,16 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <div id="gif-container" style="height: 400px; overflow-y: scroll;"></div>
+                                    <div id="gif-container"></div>
                                 </div>
                             </div>
                         
-                            <button onclick="dropup('dropup-content', 'dropup-content2')" class="dropbtn">Emotes</button>
+                            <button onclick="dropup('dropup-content', 'dropup-content2')" class="dropbtn" style="border-top-right-radius: 4px; border-bottom-right-radius: 4px;">
+                                <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier">
+                                        <path class="emote-path" d="M8 14C8 14 9.5 16 12 16C14.5 16 16 14 16 14M15 9H15.01M9 9H9.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="stroke: #B5BAC1;"></path></g>
+                                </svg>
+                            </button>
+                            
                             <div class="dropup-content" id="dropup-content" style="display: none;">
                                 <div class="top-bar">
                                     <div class="top-bar-selection">
@@ -227,10 +236,10 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div style="overflow-y: scroll; height: 400px;">
+                                <div class="emote-container-dropsection">
                                     {% for emote in emotes %}
-                                        <li style="width: 50px; height: 50px;">
-                                            <img loading="lazy" onclick="add_emote('{{emote}}')" src="/static/emotes/{{emote}}" style="max-width: 50px; max-height: 50px; margin: 0 auto; display: block;">
+                                        <li>
+                                            <img loading="lazy" onclick="add_emote('{{emote}}')" src="/static/emotes/{{emote}}">
                                         </li>
                                     {% endfor %}
                                 </div>
@@ -270,18 +279,23 @@
         console.log(room)
 
         const element = document.querySelector("#post-content");
-
+        
         // Create a new ResizeObserver
         const resizeObserver = new ResizeObserver(entries => {
         // Loop through the entries
         entries.forEach(entry => {
             // Log the new size of the element
-            is_attach = document.getElementById("attach")
+            if (document.getElementById("massage_box").getBoundingClientRect().width > entry.contentRect.width + 30){
+                console.log("ALERT2!!!")
+            }
+            
+            let is_attach = document.getElementById("attach")
             if (is_attach){
-                document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - "+(entry.contentRect.height + 102.656+ 250)+"px);")
+                document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - "+(entry.contentRect.height + 77.656+ 250)+"px);")//!!
             }
             else{
-                document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - "+(entry.contentRect.height + 102.656)+"px);")
+                console.log("ALERT!!!")
+                document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - "+(entry.contentRect.height + 77.656)+"px);")//!!
             }
 
             document.getElementById('anchor').scrollIntoView(true);
@@ -317,8 +331,8 @@
         
 
         function dropup(id, other_id){
-            var dropup =  document.getElementById(id)
-            var other_dropup = document.getElementById(other_id)
+            let dropup =  document.getElementById(id)
+            let other_dropup = document.getElementById(other_id)
             if (dropup.style.display == "none"){
                 dropup.style.display = "block"
                 other_dropup.style.display = "none"
@@ -336,13 +350,13 @@
 
 
         function resizeImage(base64Str) {
-            var img = new Image();
+            let img = new Image();
             img.src = base64Str;
-            var canvas = document.createElement('canvas');
-            var MAX_WIDTH = 400;
-            var MAX_HEIGHT = 350;
-            var width = img.width;
-            var height = img.height;
+            let canvas = document.createElement('canvas');
+            let MAX_WIDTH = 400;
+            let MAX_HEIGHT = 350;
+            let width = img.width;
+            let height = img.height;
 
             if (width > height) {
             if (width > MAX_WIDTH) {
@@ -357,7 +371,7 @@
             }
             canvas.width = width;
             canvas.height = height;
-            var ctx = canvas.getContext('2d');
+            let ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
             return canvas.toDataURL();
         }
@@ -366,14 +380,14 @@
         const user = "{{username}}"
         const user_id = "{{user_id}}"
 
-        var socket = io();
+        let socket = io();
 
         socket.emit("onload", {"user_id": user_id})
 
         
 
         //scrooll
-        var anchor = document.getElementById("anchor")
+        let anchor = document.getElementById("anchor")
         anchor.scrollIntoView(true)
 
         //on recieved massage
@@ -399,7 +413,7 @@
                         
 
                         
-                        var img_attach = document.getElementById("image-attachment").getAttribute("src")
+                        let img_attach = document.getElementById("image-attachment").getAttribute("src")
                         img_attach = resizeImage(img_attach)
 
                         socket.emit("post--",{attach: img_attach,username: user, user_id : user_id, chat : val_e.innerHTML, profile_pic : "{{profile_pic}}", room: room});
@@ -424,7 +438,7 @@
         })
         
         function insertTextAtCursor(text) {
-            var sel, range, textNode;
+            let sel, range, textNode;
             if (window.getSelection) {
                 sel = window.getSelection();
                 if (sel.getRangeAt && sel.rangeCount) {
@@ -443,18 +457,18 @@
 
         chatInput.addEventListener('paste', function(e) {
             e.preventDefault();
-            var items = (e.clipboardData || e.originalEvent.clipboardData).items;
-            var isImage = false;
-            for (var i = 0; i < items.length; i++) {
-                if (items[i].type.indexOf('image') === 0) {
+            let items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            let isImage = false;
+            for (const element of items) {
+                if (element.type.indexOf('image') === 0) {
                     // This is an image
                     
                     
                     if (document.getElementById("attach") == null){
-                        var imageFile = items[i].getAsFile();
-                        var reader = new FileReader();
+                        //let imageFile = element.getAsFile();
+                        let reader = new FileReader();
                         reader.onload = function(event) {
-                            var img = new Image();
+                            let img = new Image();
                             img.src = event.target.result;
                             img.setAttribute("class", "image-attachment")
                             img.setAttribute("id", "image-attachment")
@@ -462,12 +476,12 @@
                             //change the messages size
                             
                             
-                            height_of_send = Number(document.getElementById("massage_box").style.height.split("vh - ")[1].split("px")[0]) + 250
+                            let height_of_send = Number(document.getElementById("massage_box").style.height.split("vh - ")[1].split("px")[0]) + 250
                             document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - " + height_of_send +"px);")
                             
 
                             //create attachment menu
-                            var d  = document.createElement('div')
+                            let d  = document.createElement('div')
                             d.setAttribute('class', 'image-attachment-box')
                             d.setAttribute('id', 'attach')
                             document.getElementById("send").insertBefore(d, document.getElementById("box"))
@@ -479,11 +493,11 @@
                             document.getElementById("post-content").setAttribute("style", "border-top-right-radius: 0; border-top-left-radius: 0;")
 
                             //scroll down after the box creation
-                            var anchor = document.getElementById("anchor")
+                            let anchor = document.getElementById("anchor")
                             anchor.scrollIntoView(true)
 
                             //create close button
-                            var close = document.createElement("button")
+                            let close = document.createElement("button")
                             close.setAttribute("id", "close-button")
                             close.innerHTML = "close"
                             d.appendChild(close)

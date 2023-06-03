@@ -25,11 +25,11 @@ socketio = SocketIO(app, max_http_buffer_size = 1000000000)
 #typing status
 @socketio.on("typing")
 def typing(data):
-    emit("is_typing", {"user": data['user'], "room": data['room']}, room=int(data['room']), broadcast=True)
+    emit("is_typing", {"user": data['user'], "room": data['room'], "user_id": data['user_id']}, room=int(data['room']), broadcast=True)
 
 
 
-def validateRoom(id, rooms):
+def validate_room(id, rooms):
     for room in rooms:
         if int(id) == room[0]:
             return True
@@ -177,7 +177,7 @@ def handle_(data):
                     emit("massage",{'chat':send, 'user': f"{u_name} {time_formated}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": False, "room": room}, room=room, broadcast=True)  
     elif "gif" in data:
         gif = f"[alt--]/*/*/{data['gif']}/*/*/"
-        conn.execute(f"INSERT INTO posts (post, date, username, user_id, room, int_date) VALUES ('{gif}', '{time_formated}', '{data['username']}', {data['user_id']}, {room}, {time.time})")
+        conn.execute(f"INSERT INTO posts (post, date, username, user_id, room, int_date) VALUES ('{gif}', '{time_formated}', '{data['username']}', {data['user_id']}, {room}, {time.time()})")
         conn.commit()
         emit("massage",{'chat':"", 'user': f"{u_name} {time_formated}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "img_src": data['gif'], "room": room}, room=room, broadcast=True)
     else:
@@ -257,7 +257,7 @@ def index(room):
     rooms_ = conn.execute(f"SELECT id, name, img, type FROM chat_room WHERE users LIKE '%{user_id}%'").fetchall()
     rooms = []
 
-    if not validateRoom(room, rooms_):
+    if not validate_room(room, rooms_):
         return redirect("/room/0")
     
     for rrr in rooms_:
@@ -473,4 +473,4 @@ def user_data(id):
 
 if __name__ == '__main__':
         
-    socketio.run(app, debug=True)#, allow_unsafe_werkzeug=True
+    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)#, 
