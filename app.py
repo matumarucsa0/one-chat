@@ -8,6 +8,7 @@ import base64
 import random
 import time
 
+
 PATH = os.getcwd()
 
 
@@ -22,6 +23,7 @@ Session(app)
 
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, max_http_buffer_size = 1000000000)
+
 #typing status
 @socketio.on("typing")
 def typing(data):
@@ -252,7 +254,7 @@ def index(room):
     except:
         return redirect("/login")
 
-
+    room = int(room)
 
     rooms_ = conn.execute(f"SELECT id, name, img, type FROM chat_room WHERE users LIKE '%{user_id}%'").fetchall()
     rooms = []
@@ -347,7 +349,13 @@ def index(room):
     return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic,  messages = r, emotes=emotes, room = room, rooms=rooms, group=group, group_user_amount=room_memeber_amount)
 
     
+@app.route("/change-group-name", methods=["POST"])
+def change_group_name():
+    json_data = json.loads(request.data)
 
+    conn.execute(f"UPDATE chat_room SET name='{json_data['newName']}' WHERE id={int(json_data['room'])}")
+    conn.commit()
+    return 1
 
 
 
@@ -473,4 +481,4 @@ def user_data(id):
 
 if __name__ == '__main__':
         
-    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)#, 
+    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)#

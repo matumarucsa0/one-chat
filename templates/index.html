@@ -78,7 +78,7 @@
                 </div>
                 <div class="user-info">
                     <div style="height: 60px;">
-                        <div class="user-box" onclick='onclick=show_profile("{{user_id}}")'>
+                        <div class="user-box" onclick='show_profile("{{user_id}}")'>
                             <img src="/static/profile-pic/{{profile_pic}}" alt="profile-pic">
                             <p>{{username}}</p>
                         </div> 
@@ -94,6 +94,25 @@
             </div>
             <div style="display: grid; grid-template-columns: 100%;">
                 <div class="top-nav-bar">
+                    
+                        {% for room_name in rooms %}
+                            {% if room in room_name %}
+                            <div>
+                            <img src="{{room_name[2]}}">
+                        </div>
+                                {% if 'group' in room_name %}
+                                    <div>
+                                        <input type="text" value="{{room_name[1]}}" class="current-goup-name">
+                                    </div>
+                                {% else %}
+                                    <div>
+                                        <p class="current-directchat-name">
+                                            {{room_name[1]}}
+                                        </p>
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
                     
                 </div>
                 <div {% if group.group %}class="main-div-group"{% endif %}>
@@ -552,4 +571,5 @@
     <script src="/static/recieve.js"></script>
     <script src="/static/add_chat.js"></script>
     <script src="/static/status.js"></script>
+    <script src="/static/group-name-change.js"></script>
 </html>
