@@ -18,13 +18,14 @@ conn = sqlite3.connect("data.db", check_same_thread=False)
 
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
-app.config['ENGINEIO_PAYLOAD_MAX_NUM'] = 1000
+app.config["ENGINEIO_PAYLOAD_MAX_NUM"] = 1000
 Session(app)
 
-app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, max_http_buffer_size = 1000000000)
+app.config["SECRET_KEY"] = "secret!"
+socketio = SocketIO(app, max_http_buffer_size=1000000000)
 
-#typing status
+
+# typing status
 @socketio.on("typing")
 def typing(data):
     emit("is_typing", {"user": data['user'], "room": data['room'], "user_id": data['user_id']}, room=int(data['room']), broadcast=True)
@@ -37,18 +38,22 @@ def validate_room(id, rooms):
             return True
     return False
 
+
 is_online = set()
 l_time = time.time()
+
+
 @socketio.on("is-online")
 def online(data):
     global l_time
     global is_online
-    is_online.add(data['user'])
+    is_online.add(data["user"])
 
     if l_time < time.time() - 2:
         emit("users-online", {"users_online": list(is_online)}, broadcast=True)
         l_time = time.time()
         is_online = set()
+
 
 @app.after_request
 def after_request(response):
@@ -57,6 +62,7 @@ def after_request(response):
     response.headers["Expires"] = 0
     response.headers["Pragma"] = "no-cache"
     return response
+
 
 @socketio.on("onload")
 def on_load(data):
@@ -67,32 +73,30 @@ def on_load(data):
         join_room(int(room[0]))
 
 
-
 @socketio.on("post--")
 def handle_(data):
     attach = False
     time_formated = datetime.now().strftime('%m/%d/%Y %H:%M')
     room = int(data['room'])
     
-    post = str(data['chat'])
+    post = str(data["chat"])
 
-    #remove &nbsp;
-    
+    # remove &nbsp;
+
     while True:
         post = post.replace("&nbsp;", " ")
 
         if "&nbsp;" not in post:
             break
 
-
-    #DOESNT WORK UNTIL EMOTES ARE ADDED
-    #image algorithm
+    # DOESNT WORK UNTIL EMOTES ARE ADDED
+    # image algorithm
     i = 0
     stamps = []
-    while i < (len(data['chat'])-4):
-        if post[i:(i+4)] == "<img":
+    while i < (len(data["chat"]) - 4):
+        if post[i : (i + 4)] == "<img":
             z = i
-            while post[z] != ">" and z < len(data['chat']):
+            while post[z] != ">" and z < len(data["chat"]):
                 z += 1
             stamps.append((i, z))
             i = z
@@ -102,15 +106,13 @@ def handle_(data):
     i = len(stamps) - 1
     r = []
 
-    
-
     while i >= 0:
         r.append(post[(stamps[i][1] + 1):])
         x = str(post[stamps[i][0]: (stamps[i][1] + 1)]).removeprefix('<img src="/static/emotes').removesuffix('">')
         r.append(f"img--{x}")
-        post = post[:stamps[i][0]]
+        post = post[: stamps[i][0]]
         i -= 1
-    
+
     if len(post) > 0:
         r.append(post)
 
@@ -124,28 +126,27 @@ def handle_(data):
     r = ";,;".join(r)
     if len(r) == 0:
         r = post
-        send = post 
+        send = post
 
-    #checking for attached images
+    # checking for attached images
     try:
         
         image_removed_base64 = str(data['attach']).removeprefix("data:image/png;base64,")
         image_id = str(random.randint(100000000, 999999999))
 
-        attach_text = f'[alt--]/*/*//static/chat_images/{image_id}.jpg/*/*/'
+        attach_text = f"[alt--]/*/*//static/chat_images/{image_id}.jpg/*/*/"
 
         imgdata = base64.b64decode(image_removed_base64)
         with open(PATH + f"/static/chat_images/{image_id}.jpg", "wb") as f:
             f.write(imgdata)
-        
+
         attach = True
     except:
         pass
 
-
     # add to post database
 
-    #chesk if only emotes
+    # chesk if only emotes
     letter_ = False
     emote = False
     for cont in send:
@@ -157,12 +158,10 @@ def handle_(data):
                     letter_ = True
 
     if not letter_ and emote:
-            data["only-emote"] = "yes"
+        data["only-emote"] = "yes"
 
-    #emiting the message to connected clients
+    # emiting the message to connected clients
     u_name = data["username"]
-
-
 
     if attach:
             conn.execute(f"INSERT INTO posts (post, date, username, user_id, room, int_date) VALUES ('{attach_text}', '{time_formated}', '{data['username']}', {data['user_id']}, {room}, {time.time()})")
@@ -195,7 +194,7 @@ def handle_(data):
 def fetch_users():
     users = conn.execute(f"SELECT id, username, profile_pic FROM users WHERE id != {session['user_id']}").fetchall()
     users_ = [list(user) for user in users]
-    
+
     return users_
 
 
@@ -205,6 +204,8 @@ def main():
 
 
 import json
+
+
 @app.route("/add-chat", methods=["post"])
 def add_chat():
     data = json.loads(request.data)
@@ -212,9 +213,12 @@ def add_chat():
     #check if chat already exists
     check = set(conn.execute(f"SELECT users FROM chat_room WHERE id IN (SELECT id FROM chat_room WHERE users == {session['user_id']} AND type='direct-chat') AND type ='direct-chat' AND users!={session['user_id']}").fetchall())
     for check_id in check:
-        if check_id[0] == int(data['id']):
+        if check_id[0] == int(data["id"]):
             return {"status": "error"}
     
+    
+
+
 
     chat_name_requester, chat_name_approver = conn.execute(f"SELECT username, profile_pic FROM users WHERE id={session['user_id']}").fetchall()[0], conn.execute(f"SELECT username, profile_pic FROM users WHERE id={data['id']}").fetchall()[0]
     new_id = random.randint(100000000000, 999999999999)
@@ -222,8 +226,9 @@ def add_chat():
     conn.execute(f"INSERT INTO chat_room (id, users, name, img, type) VALUES ({new_id}, {data['id']}, '{chat_name_requester[0]}', '/static/profile-pic/{chat_name_requester[1]}', 'direct-chat')")
     conn.commit()
     return {"status": "ok"}
-    
-@app.route("/add-group", methods=['POST'])
+
+
+@app.route("/add-group", methods=["POST"])
 def add_group():
     data = json.loads(request.data)['user_id_array'].split(",") + [session['user_id']]
     name = ", ".join([conn.execute(f"SELECT username FROM users WHERE id={id}").fetchall()[0][0] for id in data])
@@ -234,6 +239,7 @@ def add_group():
         conn.execute(f"INSERT INTO chat_room (id, users, name, img, type) VALUES ({new_id}, {int(user_id)}, '{name}', '/static/setup/group.png', 'group')")
         conn.commit()
     return {}
+
 
 def orderedRooms(rooms: list):
     rooms = rooms[:]
@@ -246,7 +252,11 @@ def orderedRooms(rooms: list):
             r.append((room, last_message_date[0][0]))
     r.sort(key=lambda x: x[1], reverse=True)
     return [room[0] for room in r]
+
+
 import sys
+
+
 @app.route("/room/<room>", methods=["get", "post"])
 def index(room):
     try:
@@ -261,7 +271,7 @@ def index(room):
 
     if not validate_room(room, rooms_):
         return redirect("/room/0")
-    
+
     for rrr in rooms_:
         if rrr[3] == 'direct-chat':
             rooms.append(list(rrr) + [conn.execute(f"SELECT users FROM chat_room WHERE id={rrr[0]} AND users!={session['user_id']}").fetchall()[0][0]])
@@ -289,89 +299,104 @@ def index(room):
     image_src = ""
     tmp = ""
     for x in messages:
-        ver = False
-        x = list(x)
-        if tmp != "":
-            date_old = tmp[1].split(" ")
-            date_new = x[1].split(" ")
-            
-            if date_old[0] == date_new[0] and date_old[1][:5] == date_new[1][:5] and tmp[2] == x[2]: # and x[0][0:7] != "[alt--]"
-                ver =True                       
-                if r[-1]["status"] != "child":
-                    r[-1]["status"] = "parent"
-        
-        #check if image attachment is present
-        if x[0][0:7] == "[alt--]":
-            alt, src, text = x[0][:].split("/*/*/")
-            image_src = src
-            x[0] = text
-
-        tmp = x[:]
-
-
-        message_content = x[0].split(';,;')
-
-
-        letter_ = False
-        emote = False
-        for cont in message_content:
-            if "img--" in cont:
-                emote = True
-            else:
-                for letter in cont:
-                    if letter != " " and letter != "":
-                        letter_ = True
-
-        
-        data = {
-            "message_content": message_content,
-            "date": x[1],
-            "username": x[2],
-            "user_id": x[3],
-            "profile_picture": conn.execute(f"SELECT profile_pic FROM users WHERE id={x[3]}").fetchall()[0][0],
-        }
-
-        if not letter_ and emote:
-            data["only-emote"] = "yes"
-
-        if len(image_src) > 1:
-            data["image_src"] = image_src
-
-        if ver:
-            data["status"] = "child"
+        if x[0][:9] == '[admin--]':
+            img__ = x[0].split("/*/*/")[1]
+            message = x[0].split("/*/*/")[2]
+            admin_message = {
+                'type': 'admin',
+                'img': img__,
+                'content': message
+            }
+            r.append(admin_message)
         else:
-            data["status"] = ""
-        r.append(data) 
-        
-        image_src = ""
+            ver = False
+            x = list(x)
+            if tmp != "":
+                date_old = tmp[1].split(" ")
+                date_new = x[1].split(" ")
 
+                if date_old[0] == date_new[0] and date_old[1][:5] == date_new[1][:5] and tmp[2] == x[2]: # and x[0][0:7] != "[alt--]"
+                    ver =True                       
+                    if r[-1]["status"] != "child":
+                        r[-1]["status"] = "parent"
 
-    return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic,  messages = r, emotes=emotes, room = room, rooms=rooms, group=group, group_user_amount=room_memeber_amount)
+            # check if image attachment is present
+            if x[0][0:7] == "[alt--]":
+                alt, src, text = x[0][:].split("/*/*/")
+                image_src = src
+                x[0] = text
+
+            tmp = x[:]
+
+            message_content = x[0].split(";,;")
+
+            letter_ = False
+            emote = False
+            for cont in message_content:
+                if "img--" in cont:
+                    emote = True
+                else:
+                    for letter in cont:
+                        if letter != " " and letter != "":
+                            letter_ = True
+
+            data = {
+                "message_content": message_content,
+                "date": x[1],
+                "username": x[2],
+                "user_id": x[3],
+                "profile_picture": conn.execute(f"SELECT profile_pic FROM users WHERE id={x[3]}").fetchall()[0][0],
+                "type": "default"
+            }
+
+            if not letter_ and emote:
+                data["only-emote"] = "yes"
+
+            if len(image_src) > 1:
+                data["image_src"] = image_src
+
+            if ver:
+                data["status"] = "child"
+            else:
+                data["status"] = ""
+            r.append(data)
+
+            image_src = ""
 
     
+    return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic,  messages = r, emotes=emotes, room = room, rooms=rooms, group=group, group_user_amount=room_memeber_amount)
+
+
 @app.route("/change-group-name", methods=["POST"])
 def change_group_name():
     json_data = json.loads(request.data)
+    newName = json_data['newName']
+    while True:
+        newName = newName.replace("&nbsp;", " ")
 
-    conn.execute(f"UPDATE chat_room SET name='{json_data['newName']}' WHERE id={int(json_data['room'])}")
+        if "&nbsp;" not in newName:
+            break
+    conn.execute(f"UPDATE chat_room SET name='{newName}' WHERE id={int(json_data['room'])}")
     conn.commit()
+
+    message = f"{json_data['username']} changed the channel name: {newName} => {json_data['newName']}"
+    admin_message(message, int(json_data["room"]), "/static/setup/edit2.svg")
+
     return 1
 
 
+def admin_message(message, room, image="none"):
+    post = f"[admin--]/*/*/{image}/*/*/{message}"
+    time_formated = datetime.now().strftime("%m/%d/%Y %H:%M")
 
-
-
-
-
-
-
-
-
+    conn.execute(f"INSERT INTO posts (post, date, username, user_id, room, int_date) VALUES('{post}', '{time_formated}', 'admin', '6969696', {room}, {time.time()}) ")
+    conn.commit()
 
 
 ################
 # LOGIN SYSTEM #
 ################
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -383,8 +408,6 @@ def login():
 
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
-
-        
         username = request.form.get("username")
         password = request.form.get("password")
         # Query database for username\
@@ -394,20 +417,19 @@ def login():
             print("Incorect username or password")
             return render_template("login.html", error="Incorect username or password")
         if str(r[2]) == str(password):
-
-        # Remember which user has logged in
+            # Remember which user has logged in
             session["user_id"] = r[0]
             return redirect("/room/0")
         else:
             print("Incorect username or password")
             return render_template("login.html", error="Incorect username or password")
-            
+
         # Redirect user to home page
-            
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
         return render_template("login.html")
+
 
 @app.route("/logout")
 def logout():
@@ -423,9 +445,7 @@ def logout():
 @app.route("/register", methods=["get", "post"])
 def reg():
     if request.method == "POST":
-
         username = request.form.get("username")
-        
 
         conn.execute(f"INSERT INTO users (username, password, email, profile_pic, about_me, banner_color) VALUES('{username}', '{request.form.get('password')}', '{request.form.get('email')}', 'default.png', '', '#202225')")
         conn.commit()
@@ -435,18 +455,18 @@ def reg():
     else:
         return render_template("register.html")
 
+
 @app.route("/t", methods=["GET"])
 def f():
+    user_data = conn.execute(f"SELECT * FROM users WHERE id={session['user_id']}").fetchall()[0]  # (id integer primary key, username, password, email, profile_pic, about_me, banner_color)
+    return render_template("profile.html", user_data=user_data)
 
-    user_data = conn.execute(f"SELECT * FROM users WHERE id={session['user_id']}").fetchall()[0] # (id integer primary key, username, password, email, profile_pic, about_me, banner_color)
-    return render_template("profile.html", user_data = user_data)
 
 @app.route("/profile-change", methods=["POST"])
 def upload():
-
     user_id = session["user_id"]
 
-    file_name  = request.files["file"].filename.strip()
+    file_name = request.files["file"].filename.strip()
     if file_name != "":
         current_profile_pic = conn.execute(f"SELECT profile_pic FROM users WHERE id={user_id}").fetchall()[0][0]
         if current_profile_pic != "default.png":
@@ -460,13 +480,13 @@ def upload():
         conn.execute(f"UPDATE users set profile_pic='{str(session['user_id'])}.{fileext}' WHERE id={user_id}")
         conn.commit()
 
-    
     about_me = request.form.get("about-me")
     banner_color = request.form.get("color")
     conn.execute(f"UPDATE users SET about_me='{about_me}', banner_color='{banner_color}' WHERE id={user_id}")
     conn.commit()
 
     return redirect("/t")
+
 
 @app.route("/user_profile/<id>")
 def user_data(id):
@@ -480,5 +500,7 @@ def user_data(id):
     return data_j
 
 if __name__ == '__main__':
-        
-    socketio.run(app, debug=True, allow_unsafe_werkzeug=True)#
+    try:
+        socketio.run(app, debug=True)
+    except RuntimeError:
+        socketio.run(app, debug=True, allow_unsafe_werkzeug=True)

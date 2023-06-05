@@ -1,18 +1,20 @@
-# CURRENT #
+# CURRENT
+
 Add a lot of transition animations
 fix page size problems
 fix gif
 fix is_typing
 fix message childs
 change order of chats when message is recieved
+add server messages
 
+# LATER
 
-
-# LATER #
 Message editing
 is typing
 redo page layout
 
-# IDK YET #
+# IDK YET
+
 Redesign image algorithm
 change the format of saving images in the database

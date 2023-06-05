@@ -102,7 +102,7 @@
                         </div>
                                 {% if 'group' in room_name %}
                                     <div>
-                                        <input type="text" value="{{room_name[1]}}" class="current-goup-name">
+                                        <p contenteditable class="current-goup-name">{{room_name[1]}}</p>
                                     </div>
                                 {% else %}
                                     <div>
@@ -120,7 +120,12 @@
                         
                         <div class="messages" id="massage_box" style="height: calc(100vh - 127.65625px);">
                             {% for message in messages %}
-                                {% if message["status"] =="child" %}
+                                {% if message['type'] == "admin" %}
+                                    <div class="admin-message">
+                                        <div><img src="{{message['img']}}"></div>
+                                        <div><p>{{message['content']}}</p></div>
+                                    </div>
+                                {% elif message["status"] =="child" %}
                                     <div class="message" style="margin-bottom: 0;" child="">
                                         <div></div>
                                         {% if "image_src" in message %}

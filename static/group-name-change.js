@@ -1,10 +1,10 @@
 // Wait for the page to load
 window.addEventListener('DOMContentLoaded', function() {
     // Get the input field and submit button elements
-    let inputField = document.querySelector("input[class='current-goup-name']");
+    let inputField = document.querySelector("p[class='current-goup-name']");
     
     // Store the initial value of the input field
-    let initialValue = inputField.value;
+    let initialValue = inputField.innerHTML;
     console.log(initialValue)
     // Add event listener for when the input field is blurred
     inputField.addEventListener('keydown', function(e) {
@@ -19,7 +19,7 @@ window.addEventListener('DOMContentLoaded', function() {
       });
   
     async function checkChanges() {
-      let currentValue = inputField.value;
+      let currentValue = inputField.innerHTML;
   
       // Compare the current value with the initial value
       if (currentValue !== initialValue) {

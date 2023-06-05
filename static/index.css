@@ -889,3 +889,20 @@ body{
 .profile-pic-message:hover{
     cursor: pointer;
 }
+
+
+.admin-message{
+    height: 30px !important;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 75px auto;
+}
+.admin-message div img{
+    margin-top: 6px;
+    margin-left: 23px;
+}
+
+.admin-message div p{
+    margin: 0px;
+    margin-top: 5.665px;
+}
