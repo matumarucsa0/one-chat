@@ -7,7 +7,7 @@ import os
 import base64
 import random
 import time
-
+import json
 
 PATH = os.getcwd()
 
@@ -28,6 +28,9 @@ socketio = SocketIO(app, max_http_buffer_size=1000000000)
 # typing status
 @socketio.on("typing")
 def typing(data):
+    """
+        Reidrects the is typing status to connected clients
+    """
     emit("is_typing", {"user": data['user'], "room": data['room'], "user_id": data['user_id']}, room=int(data['room']), broadcast=True)
 
 
@@ -41,8 +44,6 @@ def validate_room(id, rooms):
 
 is_online = set()
 l_time = time.time()
-
-
 @socketio.on("is-online")
 def online(data):
     global l_time
@@ -66,6 +67,9 @@ def after_request(response):
 
 @socketio.on("onload")
 def on_load(data):
+    """
+        After user joins and sends a scoket message it will go over the rooms in which he is and connects him so that he will recieve the messages
+    """
     user = data['user_id']
     rooms=  conn.execute(f"SELECT id FROM chat_room WHERE users like '%{user}%'").fetchall()
 
@@ -73,122 +77,125 @@ def on_load(data):
         join_room(int(room[0]))
 
 
-@socketio.on("post--")
-def handle_(data):
-    attach = False
-    time_formated = datetime.now().strftime('%m/%d/%Y %H:%M')
-    room = int(data['room'])
+
+def replace_html_space(message: str):
+    """
+        Input: str message Output: str messae with replaced '&nbsp;' => ' '
+    """
+    while "&nbsp;" in message:
+        message = message.replace("&nbsp;", " ")
+
+    return message
+        
+def get_emote_data_message(message: str):
+    """
+        returns message parsed for emotes in the following format:
+            "hey <img src='EMOTE_NAME'> how you doin <img> <img>" => "hey you doin ;,;img--EMOTE-NAME;,; ;,;img--EMOTE-NAME"
+        and if the message contains only emotes and no text
+            only_emotes: bool
     
-    post = str(data["chat"])
-
-    # remove &nbsp;
-
-    while True:
-        post = post.replace("&nbsp;", " ")
-
-        if "&nbsp;" not in post:
-            break
-
-    # DOESNT WORK UNTIL EMOTES ARE ADDED
-    # image algorithm
+    """
+    message_default = message[:]
+    #go over the string and record the indexes of start and end of the img element
     i = 0
     stamps = []
-    while i < (len(data["chat"]) - 4):
-        if post[i : (i + 4)] == "<img":
+    while i < (len(message_default) - 4):
+        if message[i : (i + 4)] == "<img":
             z = i
-            while post[z] != ">" and z < len(data["chat"]):
+            while message[z] != ">" and z < len(message_default):
                 z += 1
             stamps.append((i, z))
             i = z
         i += 1
 
-    print(stamps)
-    i = len(stamps) - 1
-    r = []
+    #if emote in message set only emotes to true
+    only_emotes = bool(len(stamps))
 
+    #take out the emotes based on the index stamps
+    """
+    loops from the back and adds the text and than the emote 
+    "hello <img src='/1.jpg'> lol" => [" lol", "img--/1.jpg", "hello "]
+    """
+    i = len(stamps) - 1
+    message_list = []
     while i >= 0:
-        r.append(post[(stamps[i][1] + 1):])
-        x = str(post[stamps[i][0]: (stamps[i][1] + 1)]).removeprefix('<img src="/static/emotes').removesuffix('">')
-        r.append(f"img--{x}")
-        post = post[: stamps[i][0]]
+        message_list.append(message[(stamps[i][1] + 1):]) # text without emote
+
+        #check if the message contains text if there wasnt text found yet
+        if only_emotes:
+            for letter in message[(stamps[i][1] + 1):]:
+                if letter != " " and letter != "":
+                    only_emotes = False
+                    break
+
+        src = str(message[stamps[i][0]: (stamps[i][1] + 1)]).removeprefix('<img src="/static/emotes').removesuffix('">')
+        message_list.append(f"img--{src}")
+        message = message[:stamps[i][0]] # rest of the message
         i -= 1
 
-    if len(post) > 0:
-        r.append(post)
+    if len(message) > 0:
+        message_list.append(message)
 
-    while "" in r:
-        r.remove("")
+    message_list.reverse()
 
-    r.reverse()
+    #convert to storing format
+    message = ";,;".join(message_list)
+    if len(message) == 0:
+        message = message_default
 
-    send = r
+    return message.strip(), only_emotes
 
-    r = ";,;".join(r)
-    if len(r) == 0:
-        r = post
-        send = post
+def handle_attachment(path, attachment):
+    
+    image_removed_base64 = str(attachment).removeprefix("data:image/png;base64,")
+    image_id = str(random.randint(100000000, 999999999))
+
+
+    imgdata = base64.b64decode(image_removed_base64)
+    with open(path + f"/static/chat_images/{image_id}.jpg", "wb") as f:
+        f.write(imgdata)
+
+    return f"/static/chat_images/{image_id}.jpg"
+
+def process_message(user_id, username, message, formated_time, profile_pic, room, only_emotes, attach_source=None):
+
+    if attach_source != None:
+        attach_message = f"[alt--]/*/*/{attach_source}/*/*/"
+
+        #attach
+        conn.execute(f"INSERT INTO posts (post, date, username, user_id, room, int_date) VALUES ('{attach_message}', '{formated_time}', '{username}', {user_id}, {room}, {time.time()})")
+        emit("massage",{'chat':"", 'user': f"{username} {formated_time}", 'user_id': user_id, 'profile_pic' : profile_pic, "room": room, "img_src": attach_source}, room=room, broadcast=True)
+        conn.commit()
+
+    if len(message) > 0:
+        conn.execute(f"INSERT INTO posts (post, date, username, user_id, room, int_date) VALUES ('{message}', '{formated_time}', '{username}', {user_id}, {room}, {time.time()})")
+        conn.commit()
+        message = message.split(';,;')
+        emit("massage",{'chat':message, 'user': f"{username} {formated_time}", 'user_id': user_id, 'profile_pic' : profile_pic, "only_emotes": only_emotes, "room": room}, room=room, broadcast=True)
+
+@socketio.on("post--")
+def handle_(data):
+    time_formated = datetime.now().strftime('%m/%d/%Y %H:%M')
+    room = int(data['room'])
+    post = str(data["chat"])
+    attach_source = None
+
+    #FORMAT MESSAGE
+    # remove &nbsp;
+    post = replace_html_space(post)
+
+    #get emotes
+    post, only_emotes = get_emote_data_message(post) # => parsed_message: str, only_emotes_status: bool
 
     # checking for attached images
-    try:
-        
-        image_removed_base64 = str(data['attach']).removeprefix("data:image/png;base64,")
-        image_id = str(random.randint(100000000, 999999999))
+    if "attach" in data:
+        attach_source = handle_attachment(PATH, data['attach'])
 
-        attach_text = f"[alt--]/*/*//static/chat_images/{image_id}.jpg/*/*/"
-
-        imgdata = base64.b64decode(image_removed_base64)
-        with open(PATH + f"/static/chat_images/{image_id}.jpg", "wb") as f:
-            f.write(imgdata)
-
-        attach = True
-    except:
-        pass
-
-    # add to post database
-
-    # chesk if only emotes
-    letter_ = False
-    emote = False
-    for cont in send:
-        if "img--" in cont:
-            emote = True
-        else:
-            for letter in cont:
-                if letter != " " and letter != "":
-                    letter_ = True
-
-    if not letter_ and emote:
-        data["only-emote"] = "yes"
-
+    if "gif" in data:
+        attach_source = data['gif']
     # emiting the message to connected clients
-    u_name = data["username"]
+    process_message(data['user_id'], data['username'], post, time_formated, data['profile_pic'], room, only_emotes, attach_source)
 
-    if attach:
-            conn.execute(f"INSERT INTO posts (post, date, username, user_id, room, int_date) VALUES ('{attach_text}', '{time_formated}', '{data['username']}', {data['user_id']}, {room}, {time.time()})")
-            conn.commit()
-            
-            emit("massage",{'chat':"", 'user': f"{u_name} {time_formated}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "img_src": f"/static/chat_images/{image_id}.jpg", "room": room}, room=room, broadcast=True)
-            if send != "":
-                conn.execute(f"INSERT INTO posts (post, date, username, user_id, int_date) VALUES ('{str(r)}', '{time_formated}', '{data['username']}', {data['user_id']}, {time.time()})")
-                conn.commit()
-
-                if not letter_ and emote:
-                    emit("massage",{'chat':send, 'user': f"{u_name} {time_formated}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": True, "room": room}, room=room, broadcast=True)
-                else:
-                    emit("massage",{'chat':send, 'user': f"{u_name} {time_formated}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": False, "room": room}, room=room, broadcast=True)  
-    elif "gif" in data:
-        gif = f"[alt--]/*/*/{data['gif']}/*/*/"
-        conn.execute(f"INSERT INTO posts (post, date, username, user_id, room, int_date) VALUES ('{gif}', '{time_formated}', '{data['username']}', {data['user_id']}, {room}, {time.time()})")
-        conn.commit()
-        emit("massage",{'chat':"", 'user': f"{u_name} {time_formated}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "img_src": data['gif'], "room": room}, room=room, broadcast=True)
-    else:
-        conn.execute(f"INSERT INTO posts (post, date, username, user_id, room, int_date) VALUES ('{str(r)}', '{time_formated}', '{data['username']}', {data['user_id']}, {room}, {time.time()})")
-        conn.commit()
-        if not letter_ and emote:
-                   emit("massage",{'chat':send, 'user': f"{u_name} {time_formated}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": True, "room": room}, room=room, broadcast=True)
-        else:
-            emit("massage",{'chat':send, 'user': f"{u_name} {time_formated}", 'user_id': data['user_id'], 'profile_pic' : data['profile_pic'], "only_emotes": False, "room": room}, room=room, broadcast=True) 
-        
 
 @app.route("/users", methods=["get", "post"])
 def fetch_users():
@@ -201,9 +208,6 @@ def fetch_users():
 @app.route("/")
 def main():
     return redirect("/room/0")
-
-
-import json
 
 
 @app.route("/add-chat", methods=["post"])
@@ -379,7 +383,7 @@ def change_group_name():
     conn.execute(f"UPDATE chat_room SET name='{newName}' WHERE id={int(json_data['room'])}")
     conn.commit()
 
-    message = f"{json_data['username']} changed the channel name: {newName} => {json_data['newName']}"
+    message = f"{json_data['username']} changed the channel name: {json_data['originalName']} => {newName}"
     admin_message(message, int(json_data["room"]), "/static/setup/edit2.svg")
 
     return 1
