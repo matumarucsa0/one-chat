@@ -14,16 +14,20 @@
                 
                 <h style="color: white; display: block; text-align: center; font-weight: bolder; font-size: 22px; margin-top: 40px;">Log in</h>
             </div>
-            <form action="/login" method="post">
-                <p>Username *</p>
+            <form action="#">
+                
+
+                <p id="username-p">USERNAME OR EMAIL <c style="color: #FA777C">*</c></p>
                 <input class="input" type="text" name="username" id="username" placeholder="Username" autocomplete="off">
-                <p>Password *</p>
-                <input class="input" type="password" name="password" placeholder="Password">
+
+                <p id="password-p">PASSWORD <c style="color: #FA777C">*</c></p>
+                
+                <input class="input" type="password" name="password" placeholder="Password" id="password">
                 <div class="forgot-password-box">
                     <a class="forgot-password">Forgot Password</a>
                 </div>
                 
-                <button class="input-button" type="submit">Sign In</button>
+                <button class="input-button" type="button" onclick="submit_data()">Sign In</button>
                 <div class="register-box">
                     <p style="font-size: 14px;">Dont have an account?</p>
                     <a class="register" id="myLink" href="/register">Register</a>
@@ -55,6 +59,39 @@
     async function endAnimation(){
         document.getElementById("box").className = "out-box"
         await sleep(300)
+    }
+
+  
+    for (let inputElement of document.querySelectorAll("input")){
+        inputElement.addEventListener("keydown", function (e){
+            if (e.keyCode == 13){
+                submit_data()
+            }
+        })
+    }
+
+    async function submit_data(){
+        let username = document.getElementById("username").value
+        let password = document.getElementById("password").value
+
+        await fetch("/login", {
+            "method": "POST",
+            "body": `{
+                "username": "${username}",
+                "password": "${password}"
+            }`
+        })
+        .then(async (data) => {
+            data = await data.json()
+            console.log(data['status'])
+            if (data['status'] == "valid"){
+                window.location.replace("/")
+            }
+            else{
+                document.getElementById("username-p").innerHTML = `<c style="color: #FA777C">USERNAME OR EMAIL<sp style="font-size: 12px;"> - Login or passwrod invalid.</sp></c>`
+                document.getElementById("password-p").innerHTML = `<c style="color: #FA777C">PASSWORD<sp style="font-size: 12px;"> - Login or passwrod invalid.</sp></c>`
+            }
+        })
     }
 </script>
 </html>

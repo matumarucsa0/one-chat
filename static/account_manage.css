@@ -15,7 +15,7 @@ body{
 }
 
 .box, .out-box{
-    width: 400px;
+    width: 450px;
     margin: 0 auto;
     background-color: rgb(32, 34, 37);
     border-radius: 10px;   
@@ -36,7 +36,7 @@ body{
 }
 
 .inner-box{
-    width: 300px;
+    width: 350px;
     margin: 0 auto;
 }
 
@@ -57,7 +57,7 @@ body{
     font-size: 20px;
     padding-left: 10px;
     margin-top: 5px;
-    width: 288px;
+    width: 338px;
 }
 
 .input:focus{
@@ -101,7 +101,7 @@ body{
     height: 40px;
     font-size: 20px;
     margin-top: 10px;
-    width: 300px;
+    width: 350px;
     
 }
 

@@ -8,9 +8,10 @@ import base64
 import random
 import time
 import json
+import sys
+
 
 PATH = os.getcwd()
-
 
 app = Flask(__name__)
 
@@ -219,10 +220,6 @@ def add_chat():
     for check_id in check:
         if check_id[0] == int(data["id"]):
             return {"status": "error"}
-    
-    
-
-
 
     chat_name_requester, chat_name_approver = conn.execute(f"SELECT username, profile_pic FROM users WHERE id={session['user_id']}").fetchall()[0], conn.execute(f"SELECT username, profile_pic FROM users WHERE id={data['id']}").fetchall()[0]
     new_id = random.randint(100000000000, 999999999999)
@@ -245,7 +242,7 @@ def add_group():
     return {}
 
 
-def orderedRooms(rooms: list):
+def ordered_rooms(rooms: list):
     rooms = rooms[:]
     r = []
     for room in rooms:
@@ -256,9 +253,6 @@ def orderedRooms(rooms: list):
             r.append((room, last_message_date[0][0]))
     r.sort(key=lambda x: x[1], reverse=True)
     return [room[0] for room in r]
-
-
-import sys
 
 
 @app.route("/room/<room>", methods=["get", "post"])
@@ -282,7 +276,7 @@ def index(room):
         else:
             rooms.append(list(rrr))
 
-    rooms = orderedRooms(rooms)
+    rooms = ordered_rooms(rooms)
     room_memeber_amount = {}
     for chat in rooms:
         if chat[3] == 'group':
@@ -374,12 +368,8 @@ def index(room):
 @app.route("/change-group-name", methods=["POST"])
 def change_group_name():
     json_data = json.loads(request.data)
-    newName = json_data['newName']
-    while True:
-        newName = newName.replace("&nbsp;", " ")
-
-        if "&nbsp;" not in newName:
-            break
+    newName = replace_html_space(json_data['newName']) 
+    
     conn.execute(f"UPDATE chat_room SET name='{newName}' WHERE id={int(json_data['room'])}")
     conn.commit()
 
@@ -412,27 +402,27 @@ def login():
 
     # User reached route via POST (as by submitting a form via POST)
     if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
+        data = json.loads(request.data)
+
+        username = data['username']
+        password = data['password']
         # Query database for username\
+        
         try:
             r = conn.execute(f"SELECT * FROM users WHERE username = '{username}'").fetchall()[0] # (id integer primary key, username, password, email)
         except:
-            print("Incorect username or password")
-            return render_template("login.html", error="Incorect username or password")
+            return {"status": "invalid"}
         if str(r[2]) == str(password):
             # Remember which user has logged in
             session["user_id"] = r[0]
-            return redirect("/room/0")
+            return {"status": "valid"}
         else:
-            print("Incorect username or password")
-            return render_template("login.html", error="Incorect username or password")
-
-        # Redirect user to home page
+            return {"status": "invalid"}
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
-        return render_template("login.html")
+        return render_template("login.html",error=False)
+
 
 
 @app.route("/logout")
