@@ -49,6 +49,9 @@
         </div>
         
         <div class="main-div">
+            <div class="new-message-group">
+                
+            </div>
             <div class="side-main">
                 <div class="side-bar">
                     <button class="add-chat" onclick="get_users_direct()">Add chat</button>
@@ -230,7 +233,7 @@
 
                         <div class="send" id="send">
                             <div class="box" id="box">
-                                <div {% if group.group %}style="width: calc(100vw - 600px)"{% else %}style="width: calc(100vw - 390px)"{% endif %} contenteditable id="post-content" class="text-input" style="position: relative;"></div>
+                                <div {% if group.group %}style="width: calc(100vw - 692px)"{% else %}style="width: calc(100vw - 460px)"{% endif %} contenteditable id="post-content" class="text-input" style="position: relative;"></div>
                                 <p id="is_typing_element">HEY</p>
                                 <div class="dropup2">
                                     <button onclick="dropup('dropup-content2', 'dropup-content')" class="dropbtn">

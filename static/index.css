@@ -8,8 +8,23 @@ body{
 
 .main-div{
     display: grid;
-    grid-template-columns: 250px calc(100% - 250px);
+    grid-template-columns: 72px 250px calc(100% - 322px);
     height: 100vh;
+}
+
+.new-message-group{
+    background-color: #232428;
+}
+
+.new-message-group div{
+    width: 50px;
+    margin-left: 11px;
+}
+
+.new-message-group div img{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
 }
 
 .top-nav-bar{

@@ -1,11 +1,38 @@
+async function unread_messages(recieving_room){
+    let numberOfUnreadMessages =  await fetch("/unread-messages-update", {
+        method: "post",
+        body: `{
+            "recieving_room": "${recieving_room}",
+            "user_id": "${user_id}"
+        }`
+    }).then(async (data) => {
+        data = await data.json()
+        return data
+    })
+    
+    
+    console.log(numberOfUnreadMessages)
+    //document.getElementById()
+}
+
+function create_unread_message_link(amount){
+    unread_messages_container = document.getElementById("unread-messages")
+    
+    container = document.createElement("div")
+    img = document.createElement("img")
+    img.src = ""
+    img.setAttribute("amount", amount)
+    container.appendChild(img)
+    unread_messages_container.appendChild(container)
+}
+
 socket.on('massage', function (data){ 
     console.log("MESSAGE!")
     chat = document.querySelector(`a[chat_id='chat-${data["room"]}']`)
     chat.remove()
     document.getElementById("b").insertAdjacentElement("afterend", chat)
     if (data['room'] != room){
-        console.log("Message in room "+ data['room'])
-        
+
         return
         
     }

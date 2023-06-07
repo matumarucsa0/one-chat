@@ -13,14 +13,14 @@
             <div>
                 <h style="color: white; display: block; text-align: center; font-weight: bolder; font-size: 22px; margin-top: 40px;">Register</h>                
             </div>
-            <form action="/register" method="post">
-                <p>Username *</p>
+            <form action="#">
+                <p id="username-p">Username *</p>
                 <input class="input" type="text" name="username" id="username" placeholder="Username" autocomplete="off">
-                <p>Email *</p>
-                <input class="input" type="text" name="Email" id="email" placeholder="Email" autocomplete="off">
-                <p>Password *</p>
-                <input class="input" type="password" name="password" placeholder="Password">
-                <button class="input-button" type="submit" style="margin-top: 14px;">Register</button>
+                <p id="email-p">Email *</p>
+                <input class="input" type="text" name="email" id="email" placeholder="Email" autocomplete="off">
+                <p id="password-p">Password *</p>
+                <input class="input" type="password" name="password" placeholder="Password" id="password">
+                <button class="input-button" type="button" style="margin-top: 14px;">Register</button>
                 <div class="login-box">
                     <a class="login" id="myLink" href="/login">Already have an account?</a>
                 </div>
@@ -50,6 +50,47 @@
     async function endAnimation(){
         document.getElementById("box").className = "out-box"
         await sleep(300)
+    }
+
+    for (let inputElement of document.querySelectorAll("input")){
+        inputElement.addEventListener("keydown", function (e){
+            if (e.keyCode == 13){
+                submit_data()
+            }
+        })
+    }
+
+    async function submit_data(){
+        let username = document.getElementById("username").value
+        let email = document.getElementById("email").value
+        let password = document.getElementById("password").value
+
+        await fetch("/register", {
+            "method": "POST",
+            "body": `{
+                "username": "${username}",
+                "email": "${email}",
+                "password": "${password}"
+            }`
+        })
+        .then(async (data) => {
+            data = await data.json()
+            //
+            let valid_status = true
+            for (let key in data){
+                if (data[key] == true){
+                    document.getElementById(`${key}-p`).innerHTML = key
+                }
+                else{
+                    valid_status = false
+                    let text_label = document.getElementById(`${key}-p`)
+                    text_label.innerHTML = `<c style="color: #FA777C">${key.charAt(0).toUpperCase()+ key.slice(1)} <sp style="font-size: 12px;"> - ${data[key]}</sp></c>`
+                }
+            }
+            if (valid_status){
+                window.location.replace("/login")
+            }
+        })
     }
 </script>
 </html>

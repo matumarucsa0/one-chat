@@ -17,10 +17,10 @@
             <form action="#">
                 
 
-                <p id="username-p">USERNAME OR EMAIL <c style="color: #FA777C">*</c></p>
+                <p id="username-p">Username or Email <c style="color: #FA777C">*</c></p>
                 <input class="input" type="text" name="username" id="username" placeholder="Username" autocomplete="off">
 
-                <p id="password-p">PASSWORD <c style="color: #FA777C">*</c></p>
+                <p id="password-p">Password <c style="color: #FA777C">*</c></p>
                 
                 <input class="input" type="password" name="password" placeholder="Password" id="password">
                 <div class="forgot-password-box">
@@ -88,8 +88,8 @@
                 window.location.replace("/")
             }
             else{
-                document.getElementById("username-p").innerHTML = `<c style="color: #FA777C">USERNAME OR EMAIL<sp style="font-size: 12px;"> - Login or passwrod invalid.</sp></c>`
-                document.getElementById("password-p").innerHTML = `<c style="color: #FA777C">PASSWORD<sp style="font-size: 12px;"> - Login or passwrod invalid.</sp></c>`
+                document.getElementById("username-p").innerHTML = `<c style="color: #FA777C">Username or Email<sp style="font-size: 12px;"> - invalid</sp></c>`
+                document.getElementById("password-p").innerHTML = `<c style="color: #FA777C">Password<sp style="font-size: 12px;"> - invalid</sp></c>`
             }
         })
     }

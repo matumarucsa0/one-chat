@@ -9,6 +9,7 @@ import random
 import time
 import json
 import sys
+import re
 
 
 PATH = os.getcwd()
@@ -439,16 +440,76 @@ def logout():
 @app.route("/register", methods=["get", "post"])
 def reg():
     if request.method == "POST":
-        username = request.form.get("username")
+        data = json.loads(request.data)
+        username = data['username']
+        email = data['email']
+        password = data['password']
 
-        conn.execute(f"INSERT INTO users (username, password, email, profile_pic, about_me, banner_color) VALUES('{username}', '{request.form.get('password')}', '{request.form.get('email')}', 'default.png', '', '#202225')")
-        conn.commit()
-        user_id = conn.execute(f"SELECT id FROM users WHERE username='{username}'").fetchall()[0][0]
-        conn.execute(f"INSERT INTO chat_room (id, users, name, img, type) VALUES (0, {user_id}, 'main_chat', '/static/setup/group.png', 'group')")
-        return redirect("/login")
+        invalid = False
+        
+        status = {
+            "username": True,
+            "email": True,
+            "password": True 
+        }
+
+        username_status = validate_username(username)
+        if type(username_status) == str:
+            status['username'] = username_status
+            invalid = True
+
+        email_status = validate_email(email)
+        if type(email_status) == str:
+            status['email'] = email_status
+            invalid = True
+
+        password_stauts = validate_password(password)
+        if type(password_stauts) == str:
+            status['password'] = password_stauts
+            invalid = True
+
+        if not invalid:
+            conn.execute(f"INSERT INTO users (username, password, email, profile_pic, about_me, banner_color) VALUES('{username}', '{password}', '{email}', 'default.png', '', '#202225')")
+            conn.commit()
+            user_id = conn.execute(f"SELECT id FROM users WHERE username='{username}'").fetchall()[0][0]
+            conn.execute(f"INSERT INTO chat_room (id, users, name, img, type) VALUES (0, {user_id}, 'main_chat', '/static/setup/group.png', 'group')")
+            
+        return status
     else:
         return render_template("register.html")
 
+def validate_username(username: str):
+    username = username.strip()
+
+    if len(username) < 3 or len(username) > 16:
+        return "Must be between 3 and 16 in length"
+
+    
+    #exists check
+    existing_user = conn.execute(f"SELECT * FROM users WHERE username='{username}'").fetchall()
+    if len(existing_user) > 0:
+        return "This username is already being used"
+    
+    return True
+
+def validate_email(email: str):
+    if not re.match(r'^[\w.-]+@[\w.-]+\.\w+$', email):
+        return "incorrect format"
+    return True
+
+def validate_password(password: str):
+    if len(password) < 8:
+        return "The password is too short"
+    
+    if not re.search(r'[A-Z]', password) and not re.search(r'[a-z]', password):
+        return "The password must contain a letter"
+
+    # Check for at least one digit
+    if not re.search(r'\d', password):
+        return "The password must contain a digit"
+    
+    return True
+        
 
 @app.route("/t", methods=["GET"])
 def f():
@@ -492,6 +553,29 @@ def user_data(id):
         "banner_color": data[3]
     }
     return data_j
+
+#read messages
+@app.route("/unread-messages-update", methods=["POST"])
+def unread_messages():
+    data = json.loads(request.data)
+    user_id = data['user_id']
+    recieving_room = data['recieving_room']
+
+    number_of_unread_messages = conn.execute(f"SELECT amount FROM unread_messages WHERE user_id={user_id}, room={recieving_room}").fetchall()
+
+    if len(number_of_unread_messages) == 0:
+        number_of_unread_messages = 1
+        conn.execute(f"INSERT INTO unread_messages (user_id, room, amount) VALUES ({user_id}, {recieving_room}, 1)")
+    else:
+        number_of_unread_messages = number_of_unread_messages[0][0] + 1
+        conn.execute(f"UPDATE unread_messages SET amount={number_of_unread_messages} WHERE user_id={user_id}, room={recieving_room}")
+
+    response = {
+        "user_id": user_id,
+        "recieving_room": recieving_room,
+        "amount": number_of_unread_messages
+    }
+    return response
 
 if __name__ == '__main__':
     try:
