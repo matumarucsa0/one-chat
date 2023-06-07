@@ -49,8 +49,13 @@
         </div>
         
         <div class="main-div">
-            <div class="new-message-group">
-                
+            <div class="new-message-group" id="unread-messages">
+                {% for unread_message in unread_messages %}
+                    <div room-id="{{unread_message[0]}}" class="new-message-group-div">
+                        <img src="">
+                        <div class="amount-unread-messages">{{unread_message[1]}}</div>
+                    </div>
+                {% endfor %}
             </div>
             <div class="side-main">
                 <div class="side-bar">
@@ -296,7 +301,7 @@
                         <div>
                             
                             {% for user in group.users %}
-                                <div class="chat-select">
+                                <div class="chat-select" onclick="show_profile('{{user[0]}}')">
                                     <section style="position: relative;">
                                         <img src="/static/profile-pic/{{user[2]}}">
                                         <svg style="position:absolute;" width="10" height="10" >

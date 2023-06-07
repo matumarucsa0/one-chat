@@ -1,5 +1,5 @@
 async function unread_messages(recieving_room){
-    let numberOfUnreadMessages =  await fetch("/unread-messages-update", {
+    let data =  await fetch("/unread-messages-update", {
         method: "post",
         body: `{
             "recieving_room": "${recieving_room}",
@@ -11,19 +11,36 @@ async function unread_messages(recieving_room){
     })
     
     
-    console.log(numberOfUnreadMessages)
-    //document.getElementById()
+    console.log(data)
+    create_unread_message_link(recieving_room, data['amount'])
 }
 
-function create_unread_message_link(amount){
+function create_unread_message_link(room, amount){    
+    if (amount != 1){
+
+        main_div = document.querySelector(`div[room-id='${room}']`)
+        main_div.remove()
+        
+    }
     unread_messages_container = document.getElementById("unread-messages")
     
+    main_div = document.querySelector(`a[chat_id='chat-${room}']`)
+    img = main_div.querySelector("img")
+    src = img.src
+    
     container = document.createElement("div")
+    container.setAttribute("room-id", room)
+    container.setAttribute("class", "new-message-group-div")
     img = document.createElement("img")
-    img.src = ""
-    img.setAttribute("amount", amount)
+    img.src = src
     container.appendChild(img)
+
+    a = document.createElement("div")
+    a.setAttribute("class", "amount-unread-messages")
+    a.innerHTML = amount
+    container.appendChild(a)
     unread_messages_container.appendChild(container)
+    
 }
 
 socket.on('massage', function (data){ 
@@ -32,7 +49,7 @@ socket.on('massage', function (data){
     chat.remove()
     document.getElementById("b").insertAdjacentElement("afterend", chat)
     if (data['room'] != room){
-
+        unread_messages(data['room'])
         return
         
     }

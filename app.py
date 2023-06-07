@@ -95,6 +95,7 @@ def get_emote_data_message(message: str):
             "hey <img src='EMOTE_NAME'> how you doin <img> <img>" => "hey you doin ;,;img--EMOTE-NAME;,; ;,;img--EMOTE-NAME"
         and if the message contains only emotes and no text
             only_emotes: bool
+
     
     """
     message_default = message[:]
@@ -264,6 +265,12 @@ def index(room):
         return redirect("/login")
 
     room = int(room)
+    unread_messages = conn.execute(f"SELECT room, amount FROM unread_messages WHERE user_id={user_id}").fetchall()
+    for unread_message in unread_messages:
+        if int(unread_message[0]) == room:
+            conn.execute(f"DELETE FROM unread_messages WHERE user_id={user_id} AND room={room}")
+            conn.commit()
+            unread_messages.remove(unread_message)
 
     rooms_ = conn.execute(f"SELECT id, name, img, type FROM chat_room WHERE users LIKE '%{user_id}%'").fetchall()
     rooms = []
@@ -291,7 +298,7 @@ def index(room):
     emotes = os.listdir(PATH + "/static/emotes")
     messages = conn.execute(f"SELECT * FROM posts WHERE room={room};").fetchall()
     if len(messages) ==0:
-        return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic, emotes = emotes, room=room, rooms=rooms, group=group, group_user_amount=room_memeber_amount)
+        return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic, emotes = emotes, room=room, rooms=rooms, group=group, group_user_amount=room_memeber_amount, unread_messages=unread_messages)
 
     r = []
     # !!! LOW EFFICIENCY
@@ -363,7 +370,7 @@ def index(room):
             image_src = ""
 
     
-    return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic,  messages = r, emotes=emotes, room = room, rooms=rooms, group=group, group_user_amount=room_memeber_amount)
+    return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic,  messages = r, emotes=emotes, room = room, rooms=rooms, group=group, group_user_amount=room_memeber_amount, unread_messages=unread_messages)
 
 
 @app.route("/change-group-name", methods=["POST"])
@@ -561,14 +568,16 @@ def unread_messages():
     user_id = data['user_id']
     recieving_room = data['recieving_room']
 
-    number_of_unread_messages = conn.execute(f"SELECT amount FROM unread_messages WHERE user_id={user_id}, room={recieving_room}").fetchall()
+    number_of_unread_messages = conn.execute(f"SELECT amount FROM unread_messages WHERE user_id={user_id} AND room={recieving_room}").fetchall()
 
     if len(number_of_unread_messages) == 0:
         number_of_unread_messages = 1
         conn.execute(f"INSERT INTO unread_messages (user_id, room, amount) VALUES ({user_id}, {recieving_room}, 1)")
+        conn.commit()
     else:
         number_of_unread_messages = number_of_unread_messages[0][0] + 1
-        conn.execute(f"UPDATE unread_messages SET amount={number_of_unread_messages} WHERE user_id={user_id}, room={recieving_room}")
+        conn.execute(f"UPDATE unread_messages SET amount={number_of_unread_messages} WHERE user_id={user_id} AND room={recieving_room}")
+        conn.commit()
 
     response = {
         "user_id": user_id,
