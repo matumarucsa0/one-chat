@@ -155,7 +155,7 @@ def handle_attachment(path, attachment):
 
 
     imgdata = base64.b64decode(image_removed_base64)
-    with open(path + f"/static/chat_images/{image_id}.jpg", "wb") as f:
+    with open(path + f"\\static\\chat_images\\{image_id}.jpg", "wb") as f:
         f.write(imgdata)
 
     return f"/static/chat_images/{image_id}.jpg"
@@ -265,12 +265,6 @@ def index(room):
         return redirect("/login")
 
     room = int(room)
-    unread_messages = conn.execute(f"SELECT room, amount FROM unread_messages WHERE user_id={user_id}").fetchall()
-    for unread_message in unread_messages:
-        if int(unread_message[0]) == room:
-            conn.execute(f"DELETE FROM unread_messages WHERE user_id={user_id} AND room={room}")
-            conn.commit()
-            unread_messages.remove(unread_message)
 
     rooms_ = conn.execute(f"SELECT id, name, img, type FROM chat_room WHERE users LIKE '%{user_id}%'").fetchall()
     rooms = []
@@ -278,7 +272,19 @@ def index(room):
     if not validate_room(room, rooms_):
         return redirect("/room/0")
 
+    unread_messages = conn.execute(f"SELECT room, amount FROM unread_messages WHERE user_id={user_id}").fetchall()
+    for unread_message in unread_messages:
+        if int(unread_message[0]) == room:
+            conn.execute(f"DELETE FROM unread_messages WHERE user_id={user_id} AND room={room}")
+            conn.commit()
+            unread_messages.remove(unread_message)
+
     for rrr in rooms_:
+        for i in range(len(unread_messages)):
+            if rrr[0] in unread_messages[i]:
+                unread_messages[i] = list(unread_messages[i]) + [rrr[2]]
+                break 
+
         if rrr[3] == 'direct-chat':
             rooms.append(list(rrr) + [conn.execute(f"SELECT users FROM chat_room WHERE id={rrr[0]} AND users!={session['user_id']}").fetchall()[0][0]])
         else:

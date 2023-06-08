@@ -52,7 +52,7 @@
             <div class="new-message-group" id="unread-messages">
                 {% for unread_message in unread_messages %}
                     <div room-id="{{unread_message[0]}}" class="new-message-group-div">
-                        <img src="">
+                        <img src="{{unread_message[2]}}">
                         <div class="amount-unread-messages">{{unread_message[1]}}</div>
                     </div>
                 {% endfor %}
@@ -239,7 +239,7 @@
                         <div class="send" id="send">
                             <div class="box" id="box">
                                 <div {% if group.group %}style="width: calc(100vw - 692px)"{% else %}style="width: calc(100vw - 460px)"{% endif %} contenteditable id="post-content" class="text-input" style="position: relative;"></div>
-                                <p id="is_typing_element">HEY</p>
+                                <p id="is_typing_element"></p>
                                 <div class="dropup2">
                                     <button onclick="dropup('dropup-content2', 'dropup-content')" class="dropbtn">
                                         <svg width="24" height="24" class="icon-1d5zch" aria-hidden="true" role="img" viewBox="0 0 24 24">
@@ -503,82 +503,87 @@
         
         // paste image handeling
         const chatInput = document.getElementById('post-content');
-
+        
         chatInput.addEventListener('paste', function(e) {
-            e.preventDefault();
-            let items = (e.clipboardData || e.originalEvent.clipboardData).items;
-            let isImage = false;
-            for (const element of items) {
-                if (element.type.indexOf('image') === 0) {
-                    // This is an image
-                    
-                    
-                    if (document.getElementById("attach") == null){
-                        //let imageFile = element.getAsFile();
-                        let reader = new FileReader();
-                        reader.onload = function(event) {
-                            let img = new Image();
-                            img.src = event.target.result;
-                            img.setAttribute("class", "image-attachment")
-                            img.setAttribute("id", "image-attachment")
-                            
-                            //change the messages size
-                            
-                            
-                            let height_of_send = Number(document.getElementById("massage_box").style.height.split("vh - ")[1].split("px")[0]) + 250
-                            document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - " + height_of_send +"px);")
-                            
+  e.preventDefault();
+  let items = (e.clipboardData || e.originalEvent.clipboardData).items;
+  let isImage = false;
+  let reader = new FileReader();
+  let imageFile;
 
-                            //create attachment menu
-                            let d  = document.createElement('div')
-                            d.setAttribute('class', 'image-attachment-box')
-                            d.setAttribute('id', 'attach')
-                            document.getElementById("send").insertBefore(d, document.getElementById("box"))
-                            d.appendChild(img)
-                            
-                            //document.getElementById("massage_box").setAttribute("style", "height: calc(90vh - 39vh);")
+  for (let element of items) {
+    if (element.type.indexOf('image') === 0) {
+      // This is an image
 
-                            //change the radius
-                            document.getElementById("post-content").setAttribute("style", "border-top-right-radius: 0; border-top-left-radius: 0;")
+      if (document.getElementById("attach") == null) {
+        let file = element.getAsFile();
 
-                            //scroll down after the box creation
-                            let anchor = document.getElementById("anchor")
-                            anchor.scrollIntoView(true)
+        if (file) {
+          imageFile = file;
+          reader.onload = function(event) {
+            let img = new Image();
+            img.src = event.target.result;
+            img.setAttribute("class", "image-attachment")
+            img.setAttribute("id", "image-attachment")
+            
+            //change the messages size
+            
+            
+            let height_of_send = Number(document.getElementById("massage_box").style.height.split("vh - ")[1].split("px")[0]) + 250
+            document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - " + height_of_send +"px);")
+            
 
-                            //create close button
-                            let close = document.createElement("button")
-                            close.setAttribute("id", "close-button")
-                            close.innerHTML = "close"
-                            d.appendChild(close)
-                            close.addEventListener("click", function () {
-                                v = Number(document.getElementById("massage_box").style.height.split("vh - ")[1].split("px")[0]) - 250
-                                document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - " + v +"px);") //"height: calc(100vh - "+(entry.contentRect.height + 102.656)+"px);"
-                                
-                                d.remove()
-                                document.getElementById("post-content").setAttribute("style", "")
-                                val_e.focus()
-                            })
-                        };
-                    }
-                    else{
-                        alert("Only one image")
-                    }
+            //create attachment menu
+            let d  = document.createElement('div')
+            d.setAttribute('class', 'image-attachment-box')
+            d.setAttribute('id', 'attach')
+            document.getElementById("send").insertBefore(d, document.getElementById("box"))
+            d.appendChild(img)
+            document.querySelectorAll("button[class='dropbtn']")[1].style = "border-top-right-radius: 0; border-bottom-right-radius: 4px;"
+            
+            //document.getElementById("massage_box").setAttribute("style", "height: calc(90vh - 39vh);")
 
-                    
-                    reader.readAsDataURL(imageFile);
-                    isImage = true;
-                    break;
-                    }
-                    
-                    
-            }
-            if (!isImage) {
-                
-                // Insert the pasted text as plain text
-                const text = event.clipboardData.getData('text/plain');
-                insertTextAtCursor(text)
-            }
-            });
+            //change the radius
+            document.getElementById("post-content").setAttribute("style", "border-top-right-radius: 0; border-top-left-radius: 0;")
+
+            //scroll down after the box creation
+            let anchor = document.getElementById("anchor")
+            anchor.scrollIntoView(true)
+
+            //create close button
+            let close = document.createElement("button")
+            close.setAttribute("id", "close-button")
+            close.innerHTML = "close"
+            d.appendChild(close)
+            close.addEventListener("click", function () {
+                v = Number(document.getElementById("massage_box").style.height.split("vh - ")[1].split("px")[0]) - 250
+                document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - " + v +"px);") //"height: calc(100vh - "+(entry.contentRect.height + 102.656)+"px);"
+                document.querySelectorAll("button[class='dropbtn']")[1].style = "border-top-right-radius: 4px; border-bottom-right-radius: 4px;"                
+                d.remove()
+                document.getElementById("post-content").setAttribute("style", "")
+                val_e.focus()
+            })
+          };
+
+          reader.readAsDataURL(imageFile);
+        } else {
+          console.log("Failed to retrieve image file");
+        }
+      } else {
+        alert("Only one image");
+      }
+
+      isImage = true;
+      break;
+    }
+  }
+
+  if (!isImage) {
+    // Insert the pasted text as plain text
+    const text = event.clipboardData.getData('text/plain');
+    insertTextAtCursor(text);
+  }
+});
 
     </script>
     <script src="/static/recieve.js"></script>
