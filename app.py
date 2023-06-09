@@ -213,6 +213,23 @@ def main():
     return redirect("/room/0")
 
 
+
+@app.route("/leave-group", methods=["POST"])
+def leave_group():
+    data = json.loads(request.data)
+
+    removed_user = conn.execute(f"SELECT username FROM users WHERE id={int(data['user'])}").fetchall()[0][0]
+
+    if data['method'] == "kicked":
+        removing_user = conn.execute(f"SELECT username FROM users WHERE id={int(data['removing-user'])}").fetchall()[0][0]
+        message = f"{removing_user} removed {removed_user} from the group"
+    elif data['method'] == "left":
+        message = f"{removed_user} left the group"
+    admin_message(message, data['room'], "leave-group", "/static/setup/leave.svg")
+    conn.execute(f"DELETE FROM chat_room WHERE id={data['room']} AND users={data['user']}")
+    conn.commit()
+    return {}
+
 @app.route("/add-chat", methods=["post"])
 def add_chat():
     data = json.loads(request.data)
@@ -388,18 +405,29 @@ def change_group_name():
     conn.commit()
 
     message = f"{json_data['username']} changed the channel name: {json_data['originalName']} => {newName}"
-    admin_message(message, int(json_data["room"]), "/static/setup/edit2.svg")
+    admin_message(message, int(json_data["room"]), "change-goup-name", "/static/setup/edit2.svg")
+    return {}
 
-    return 1
-
-
-def admin_message(message, room, image="none"):
+def admin_message(message, room, socket_param="message", image="none"):
     post = f"[admin--]/*/*/{image}/*/*/{message}"
     time_formated = datetime.now().strftime("%m/%d/%Y %H:%M")
 
     conn.execute(f"INSERT INTO posts (post, date, username, user_id, room, int_date) VALUES('{post}', '{time_formated}', 'admin', '6969696', {room}, {time.time()}) ")
+    socketio.emit(socket_param,{'content':message, "src": image, "admin": "", "room": int(room)}, room=int(room))
     conn.commit()
 
+@app.route("/get-users-of-group", methods=['POST'])
+def get_users_of_group():
+    room = json.loads(request.data)['room']
+    group_users = conn.execute(f"SELECT id, username, profile_pic FROM users WHERE id IN (SELECT users FROM chat_room WHERE id={room})").fetchall()
+    return group_users
+
+@app.route("/get-group-name", methods=["post"])
+def get_group_name():
+    room = json.loads(request.data)['room']
+    room_name = conn.execute(f"SELECT name FROM chat_room WHERE id={room} LIMIT 1").fetchall()[0][0]
+    return {"room-name": room_name}
+    
 
 ################
 # LOGIN SYSTEM #

@@ -43,6 +43,100 @@ function create_unread_message_link(room, amount){
     
 }
 
+socket.on("change-goup-name", async function (data){
+    chat = document.querySelector(`a[chat_id='chat-${data["room"]}']`)
+    chat.remove()
+    document.getElementById("b").insertAdjacentElement("afterend", chat)
+    if (data['room'] == room){
+        let room_name = await fetch("/get-group-name", {
+            method: "POST",
+            body: `{
+                "room": "${data['room']}"
+            }`
+        })
+        room_name = await room_name.json()
+        document.querySelector("p[class='current-goup-name']").innerHTML = room_name['room-name']
+    
+        div = document.createElement("div")
+        div.setAttribute("class", "admin-message")
+
+        d1 = document.createElement("div")
+        img = document.createElement("img")
+        img.src = data['src']
+        d1.appendChild(img)
+        div.appendChild(d1)
+
+        d2 = document.createElement("div")
+        p = document.createElement("p")
+        p.innerHTML = data['content']
+        d2.appendChild(p)
+        div.appendChild(d2)
+
+        document.getElementById("massage_box").insertBefore(div, anchor)
+        anchor.scrollIntoView(true)
+    }
+
+})
+
+socket.on("leave-group",async function (data){
+    chat = document.querySelector(`a[chat_id='chat-${data["room"]}']`)
+    chat.remove()
+    document.getElementById("b").insertAdjacentElement("afterend", chat)
+    if (data['room'] == room){
+        
+
+        div = document.createElement("div")
+        div.setAttribute("class", "admin-message")
+
+        d1 = document.createElement("div")
+        img = document.createElement("img")
+        img.src = data['src']
+        d1.appendChild(img)
+        div.appendChild(d1)
+
+        d2 = document.createElement("div")
+        p = document.createElement("p")
+        p.innerHTML = data['content']
+        d2.appendChild(p)
+        div.appendChild(d2)
+
+        document.getElementById("massage_box").insertBefore(div, anchor)
+        anchor.scrollIntoView(true)
+
+
+        
+        users = await fetch("/get-users-of-group", {
+            method: "POST",
+            body: `{
+                "room": "${room}"
+            }`
+        })
+        users = await users.json()
+
+        user_html = ""
+        for (let user of users){
+            user_html += `
+            <div class="chat-select" onclick="show_profile('${user[0]}')">
+                <section style="position: relative;">
+                    <img src="/static/profile-pic/${user[2]}">
+                    <svg style="position:absolute;" width="10" height="10" >
+                        <circle r="5" cx="5" cy="5" fill="#F23F43" user_id="${user[0]}" class="stat"></circle>
+                    </svg>
+                </section>
+                
+                <div>
+                    <p>${user[1]}</p>
+                </div>
+            </div>
+            
+            `
+        }
+
+        document.getElementById("users-of-group").innerHTML = user_html
+    }
+    
+})
+
 socket.on('massage', function (data){ 
     console.log("MESSAGE!")
     chat = document.querySelector(`a[chat_id='chat-${data["room"]}']`)
@@ -54,8 +148,28 @@ socket.on('massage', function (data){
         
     }
     let verifier = true
+    if ("admin" in data){
+        div = document.createElement("div")
+        div.setAttribute("class", "admin-message")
 
-    if (Array.from(document.getElementsByClassName("message")).length == 0){
+        d1 = document.createElement("div")
+        img = document.createElement("img")
+        img.src = data['src']
+        d1.appendChild(img)
+        div.appendChild(d1)
+
+        d2 = document.createElement("div")
+        p = document.createElement("p")
+        p.innerHTML = data['content']
+        d2.appendChild(p)
+        div.appendChild(d2)
+
+        document.getElementById("massage_box").insertBefore(div, anchor)
+        location.reload()
+        anchor.scrollIntoView(true)
+        return
+    }
+    else if (Array.from(document.getElementsByClassName("message")).length == 0){
         
     }
     // if last message is child checks if this message can be child -> appends itself as ""/child/parent    

@@ -121,7 +121,7 @@
                                 {% endif %}
                             {% endif %}
                         {% endfor %}
-                    
+                        <button onclick="leave_group('{{user_id}}', 'left', '{{room}}')"></button>
                 </div>
                 <div {% if group.group %}class="main-div-group"{% endif %}>
                     <div class="main-">
@@ -298,7 +298,7 @@
                         </div>
                     </div>
                     {% if group.group %}
-                        <div>
+                        <div id="users-of-group">
                             
                             {% for user in group.users %}
                                 <div class="chat-select" onclick="show_profile('{{user[0]}}')">
@@ -590,4 +590,5 @@
     <script src="/static/add_chat.js"></script>
     <script src="/static/status.js"></script>
     <script src="/static/group-name-change.js"></script>
+    <script src="/static//leave_group.js"></script>
 </html>

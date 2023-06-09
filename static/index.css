@@ -48,7 +48,7 @@ body{
     background-color: rgb(49,51,56);
     border-bottom: 2px solid rgb(30,31,34);
     display: grid;
-    grid-template-columns: 50px auto;
+    grid-template-columns: 50px auto 100px;
 }
 
 .top-nav-bar div{

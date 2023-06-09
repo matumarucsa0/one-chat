@@ -35,9 +35,7 @@ window.addEventListener('DOMContentLoaded', function() {
                 "user_id": "${user_id}",
                 "username": "${user}"
             }`
-        }).then(
-            location.reload()
-            )
+        })
         
         // You can submit the form programmatically here if needed
         // document.getElementById('my-form').submit();
