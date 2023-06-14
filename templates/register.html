@@ -81,14 +81,14 @@
             .then(async (data) => {
                 data = await data.json()
                 //
-                submit_button.innerHTML = originalText;
-                submit_button.classList.remove('button-loading');
+                
                 let valid_status = true
                 for (let key in data){
                     if (data[key] == true){
                         document.getElementById(`${key}-p`).innerHTML = capitalizeFirstLetter(key)
                     }
                     else{
+                        
                         valid_status = false
                         let text_label = document.getElementById(`${key}-p`)
                         text_label.innerHTML = `<c style="color: #FA777C">${capitalizeFirstLetter(key)} <sp style="font-size: 12px;"> - ${data[key]}</sp></c>`
@@ -96,6 +96,10 @@
                 }
                 if (valid_status){
                     window.location.replace("/login")
+                }
+                else{
+                    submit_button.innerHTML = originalText;
+                    submit_button.classList.remove('button-loading');
                 }
             })}, 500)
     }
