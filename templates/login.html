@@ -69,29 +69,37 @@
             }
         })
     }
-
+    
     async function submit_data(){
         let username = document.getElementById("username").value
         let password = document.getElementById("password").value
 
-        await fetch("/login", {
-            "method": "POST",
-            "body": `{
-                "username": "${username}",
-                "password": "${password}"
-            }`
-        })
-        .then(async (data) => {
-            data = await data.json()
-            console.log(data['status'])
-            if (data['status'] == "valid"){
-                window.location.replace("/")
-            }
-            else{
-                document.getElementById("username-p").innerHTML = `<c style="color: #FA777C">Username or Email<sp style="font-size: 12px;"> - invalid</sp></c>`
-                document.getElementById("password-p").innerHTML = `<c style="color: #FA777C">Password<sp style="font-size: 12px;"> - invalid</sp></c>`
-            }
-        })
+        let submit_button = document.querySelector("button[class='input-button']")
+        let originalText = submit_button.innerHTML
+        submit_button.innerHTML = ""
+        submit_button.classList.add("button-loading")
+        setTimeout(async function (){
+            await fetch("/login", {
+                "method": "POST",
+                "body": `{
+                    "username": "${username}",
+                    "password": "${password}"
+                }`
+            })
+            .then(async (data) => {
+                data = await data.json()
+                console.log(data['status'])
+                submit_button.innerHTML = originalText;
+                submit_button.classList.remove('button-loading');
+                if (data['status'] == "valid"){
+                    window.location.replace("/")
+                }
+                else{
+                    document.getElementById("username-p").innerHTML = `<c style="color: #FA777C">Username or Email<sp style="font-size: 12px;"> - invalid</sp></c>`
+                    document.getElementById("password-p").innerHTML = `<c style="color: #FA777C">Password<sp style="font-size: 12px;"> - invalid</sp></c>`
+                }
+            })
+        },500)
     }
 </script>
 </html>

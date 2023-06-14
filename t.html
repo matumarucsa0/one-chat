@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .button-loading::after {
+      content: "";
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border-top: 2px solid #fff;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      border-left: 2px solid transparent;
+      animation: spin 1s linear infinite;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+  <button id="submitBtn" onclick="submitForm()">Submit</button>
+
+  <script>
+    function submitForm() {
+      var btn = document.getElementById('submitBtn');
+      var originalText = btn.innerHTML;
+
+      btn.innerHTML = '';
+      btn.classList.add('button-loading');
+
+      // Simulating a delay for demonstration purposes
+      setTimeout(function() {
+        // Restore the button state
+        btn.innerHTML = originalText;
+        btn.classList.remove('button-loading');
+
+        // Perform further actions or submit the form
+        // ...
+      }, 2000);
+    }
+  </script>
+</body>
+</html>
