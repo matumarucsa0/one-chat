@@ -25,10 +25,12 @@ function create_unread_message_link(room, amount){
     unread_messages_container = document.getElementById("unread-messages")
     
     main_div = document.querySelector(`a[chat_id='chat-${room}']`)
+    main_div
     img = main_div.querySelector("img")
     src = img.src
     
     container = document.createElement("div")
+    container.setAttribute("onclick", `location.href='/room/${room}'`)
     container.setAttribute("room-id", room)
     container.setAttribute("class", "new-message-group-div")
     img = document.createElement("img")
@@ -47,14 +49,19 @@ socket.on("change-goup-name", async function (data){
     chat = document.querySelector(`a[chat_id='chat-${data["room"]}']`)
     chat.remove()
     document.getElementById("b").insertAdjacentElement("afterend", chat)
+
+    let room_name = await fetch("/get-group-name", {
+        method: "POST",
+        body: `{
+            "room": "${data['room']}"
+        }`
+    })
+    room_name = await room_name.json()
+    document.querySelector(`a[chat_id="chat-${data['room']}"`).querySelector("p").innerHTML = room_name['room-name']
+    
     if (data['room'] == room){
-        let room_name = await fetch("/get-group-name", {
-            method: "POST",
-            body: `{
-                "room": "${data['room']}"
-            }`
-        })
-        room_name = await room_name.json()
+        
+        //change the name for the main 
         document.querySelector("p[class='current-goup-name']").innerHTML = room_name['room-name']
     
         div = document.createElement("div")
@@ -147,6 +154,7 @@ socket.on('massage', function (data){
         return
         
     }
+    socket.emit("set_message_seen", {"room": room, "user_id": user_id})
     let verifier = true
     if ("admin" in data){
         div = document.createElement("div")

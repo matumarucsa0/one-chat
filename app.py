@@ -160,6 +160,15 @@ def handle_attachment(path, attachment):
 
     return f"/static/chat_images/{image_id}.jpg"
 
+def increment_message_unread(room_id):
+    users = conn.execute(f"SELECT users FROM chat_room WHERE id={room_id}").fetchall()
+    for user in users:
+        current_unread_messages = conn.execute(f"SELECT amount FROM unread_messages WHERE user_id={int(user[0])} AND room={int(room_id)}").fetchall()[0][0]
+        conn.execute(f"UPDATE unread_messages SET amount={current_unread_messages+1} WHERE user_id={int(user[0])} AND room = {int(room_id)}")
+        conn.commit()
+
+
+
 def process_message(user_id, username, message, formated_time, profile_pic, room, only_emotes, attach_source=None):
 
     if attach_source != None:
@@ -167,14 +176,17 @@ def process_message(user_id, username, message, formated_time, profile_pic, room
 
         #attach
         conn.execute(f"INSERT INTO posts (post, date, username, user_id, room, int_date) VALUES ('{attach_message}', '{formated_time}', '{username}', {user_id}, {room}, {time.time()})")
+        increment_message_unread(room)
         emit("massage",{'chat':"", 'user': f"{username} {formated_time}", 'user_id': user_id, 'profile_pic' : profile_pic, "room": room, "img_src": attach_source}, room=room, broadcast=True)
         conn.commit()
 
     if len(message) > 0:
+        increment_message_unread(room)
         conn.execute(f"INSERT INTO posts (post, date, username, user_id, room, int_date) VALUES ('{message}', '{formated_time}', '{username}', {user_id}, {room}, {time.time()})")
         conn.commit()
         message = message.split(';,;')
         emit("massage",{'chat':message, 'user': f"{username} {formated_time}", 'user_id': user_id, 'profile_pic' : profile_pic, "only_emotes": only_emotes, "room": room}, room=room, broadcast=True)
+
 
 @socketio.on("post--")
 def handle_(data):
@@ -244,6 +256,10 @@ def add_chat():
     new_id = random.randint(100000000000, 999999999999)
     conn.execute(f"INSERT INTO chat_room (id, users, name, img, type) VALUES ({new_id}, {session['user_id']}, '{chat_name_approver[0]}', '/static/profile-pic/{chat_name_approver[1]}', 'direct-chat')")
     conn.execute(f"INSERT INTO chat_room (id, users, name, img, type) VALUES ({new_id}, {data['id']}, '{chat_name_requester[0]}', '/static/profile-pic/{chat_name_requester[1]}', 'direct-chat')")
+    
+    conn.execute(f"INSERT INTO unread_messages (user_id, room, amount) VALUES({session['user_id']}, {new_id}, 0)")
+    conn.execute(f"INSERT INTO unread_messages (user_id, room, amount) VALUES({data['id']}, {new_id}, 0)")
+
     conn.commit()
     return {"status": "ok"}
 
@@ -258,6 +274,10 @@ def add_group():
 
         conn.execute(f"INSERT INTO chat_room (id, users, name, img, type) VALUES ({new_id}, {int(user_id)}, '{name}', '/static/setup/group.png', 'group')")
         conn.commit()
+
+        conn.execute(f"INSERT INTO unread_messages (user_id, room, amount) VALUES ({int(user_id)}, {new_id}, 0)")
+        conn.commit()
+
     return {}
 
 
@@ -283,6 +303,13 @@ def index(room):
 
     room = int(room)
 
+    #set the messages as seen
+    
+    conn.execute(f"UPDATE unread_messages SET amount=0 WHERE user_id={user_id} AND room={room}")
+    conn.commit()
+
+    
+
     rooms_ = conn.execute(f"SELECT id, name, img, type FROM chat_room WHERE users LIKE '%{user_id}%'").fetchall()
     rooms = []
 
@@ -290,12 +317,13 @@ def index(room):
         return redirect("/room/0")
 
     unread_messages = conn.execute(f"SELECT room, amount FROM unread_messages WHERE user_id={user_id}").fetchall()
-    for unread_message in unread_messages:
-        if int(unread_message[0]) == room:
-            conn.execute(f"DELETE FROM unread_messages WHERE user_id={user_id} AND room={room}")
-            conn.commit()
+    
+    
+    for unread_message in unread_messages[:]:
+        if unread_message[1] == 0:
+            
             unread_messages.remove(unread_message)
-
+    #unread messages?
     for rrr in rooms_:
         for i in range(len(unread_messages)):
             if rrr[0] in unread_messages[i]:
@@ -602,16 +630,7 @@ def unread_messages():
     user_id = data['user_id']
     recieving_room = data['recieving_room']
 
-    number_of_unread_messages = conn.execute(f"SELECT amount FROM unread_messages WHERE user_id={user_id} AND room={recieving_room}").fetchall()
-
-    if len(number_of_unread_messages) == 0:
-        number_of_unread_messages = 1
-        conn.execute(f"INSERT INTO unread_messages (user_id, room, amount) VALUES ({user_id}, {recieving_room}, 1)")
-        conn.commit()
-    else:
-        number_of_unread_messages = number_of_unread_messages[0][0] + 1
-        conn.execute(f"UPDATE unread_messages SET amount={number_of_unread_messages} WHERE user_id={user_id} AND room={recieving_room}")
-        conn.commit()
+    number_of_unread_messages = conn.execute(f"SELECT amount FROM unread_messages WHERE user_id={user_id} AND room={recieving_room}").fetchall()[0][0]
 
     response = {
         "user_id": user_id,
@@ -619,6 +638,11 @@ def unread_messages():
         "amount": number_of_unread_messages
     }
     return response
+
+@socketio.on("set_message_seen")
+def set_message_seen(data):
+    conn.execute(f"UPDATE unread_messages SET amount=0 WHERE user_id={data['user_id']} AND room={data['room']}")
+    conn.commit()
 
 if __name__ == '__main__':
     try:
