@@ -58,6 +58,7 @@ def online(data):
         is_online = set()
 
 
+
 @app.after_request
 def after_request(response):
     """Ensure responses aren't cached"""
@@ -349,7 +350,7 @@ def index(room):
     emotes = os.listdir(PATH + "/static/emotes")
     messages = conn.execute(f"SELECT * FROM posts WHERE room={room};").fetchall()
     if len(messages) ==0:
-        return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic, emotes = emotes, room=room, rooms=rooms, group=group, group_user_amount=room_memeber_amount, unread_messages=unread_messages)
+        return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic, emotes = emotes, room=room, rooms=rooms, group=group, group_user_amount=room_memeber_amount, unread_messages=unread_messages, is_online_current = is_online_current)
 
     r = []
     # !!! LOW EFFICIENCY
@@ -421,7 +422,7 @@ def index(room):
             image_src = ""
 
     
-    return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic,  messages = r, emotes=emotes, room = room, rooms=rooms, group=group, group_user_amount=room_memeber_amount, unread_messages=unread_messages)
+    return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic,  messages = r, emotes=emotes, room = room, rooms=rooms, group=group, group_user_amount=room_memeber_amount, unread_messages=unread_messages, is_online_current = is_online_current)
 
 
 @app.route("/change-group-name", methods=["POST"])

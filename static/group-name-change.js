@@ -57,19 +57,25 @@ function remove_html_space(string){
 const divisor = document.getElementById("the-divisor")
 content = document.getElementById("users-of-group")
 const content_inner =  content.innerHTML
-const message_content = document.getElementById("post-content")
 function side_users(){
+  observe = false
+  resizeObserver.unobserve(element)
 
   if (divisor.classList.contains("main-div-group")){
-    message_content.setAttribute("style", "width: calc(100vw - 460px)") 
 
     document.getElementById("users-of-group").remove()
     divisor.setAttribute("class", "")
+    document.getElementById("post-content").setAttribute("style", "width: calc(100vw - 460px)") 
   }
   else{
-    message_content.setAttribute("style", "width: calc(100vw - 692px)")
+    document.getElementById("post-content").setAttribute("style", "width: calc(100vw - 692px)")
 
     divisor.innerHTML += `<div id="users-of-group">${content_inner}</div>`
     divisor.setAttribute("class", "main-div-group")
   }
+
+  observe = true
+  resizeObserver.observe(element)
+
+  observer_resize()
 }

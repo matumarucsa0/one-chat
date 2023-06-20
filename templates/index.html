@@ -332,26 +332,35 @@
         const element = document.querySelector("#post-content");
         
         // Create a new ResizeObserver
-        const resizeObserver = new ResizeObserver(entries => {
-        // Loop through the entries
-        entries.forEach(entry => {
-            // Log the new size of the element
-            if (document.getElementById("massage_box").getBoundingClientRect().width > entry.contentRect.width + 30){
-                console.log("ALERT2!!!")
-            }
-            
-            let is_attach = document.getElementById("attach")
-            if (is_attach){
-                document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - "+(entry.contentRect.height + 77.656+ 250 + 50)+"px);")//!!
-            }
-            else{
-                console.log("ALERT!!!")
-                document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - "+(entry.contentRect.height + 77.656 + 50)+"px);")//!!
-            }
+    function observer_resize(){
+        if (document.getElementById("massage_box").getBoundingClientRect().width > entry.contentRect.width + 30){
+            console.log("ALERT2!!!")
+        }
 
-            document.getElementById('anchor').scrollIntoView(true);
-        });
-        });
+        let is_attach = document.getElementById("attach")
+        if (is_attach){
+            document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - "+(entry.contentRect.height + 77.656+ 250 + 50)+"px);")//!!
+        }
+        else{
+            console.log("ALERT!!!")
+            document.getElementById("massage_box").setAttribute("style", "height: calc(100vh - "+(entry.contentRect.height + 77.656 + 50)+"px);")//!!
+        }
+
+        document.getElementById('anchor').scrollIntoView(true);
+        }
+
+
+    let observe = true
+    const resizeObserver = new ResizeObserver(entries => {
+    
+        // Loop through the entries
+        if (observe){
+            entries.forEach(entry => {
+
+                // Log the new size of the element
+                observer_resize()
+            })}
+        })
         
         if (element) {
             // Observe the element
