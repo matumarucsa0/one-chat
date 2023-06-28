@@ -52,11 +52,24 @@ body{
     background-color: rgb(49,51,56);
     border-bottom: 2px solid rgb(30,31,34);
     display: grid;
-    grid-template-columns: 50px auto 50px 100px 50px;
+    grid-template-columns: 50px auto 65px 65px 65px;
+}
+
+.button-container{
+    height: 35px;
+    width: 35px;
+}
+
+.button-container > div{
+    height: inherit !important;
+    width: inherit !important;
+    margin-top: 7.5px;
+
 }
 
 .top-nav-bar div{
     display: inline-block;
+    
 }
 
 .top-nav-bar div img{

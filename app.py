@@ -115,6 +115,7 @@ def get_emote_data_message(message: str):
     #if emote in message set only emotes to true
     only_emotes = bool(len(stamps))
 
+
     #take out the emotes based on the index stamps
     """
     loops from the back and adds the text and than the emote 
@@ -139,6 +140,10 @@ def get_emote_data_message(message: str):
 
     if len(message) > 0:
         message_list.append(message)
+        for letter in message:
+            if letter != " " and letter != "":
+                only_emotes = False
+                break
 
     message_list.reverse()
 
@@ -255,7 +260,7 @@ def add_user_group():
     conn.execute(f"INSERT INTO chat_room (id, users, name, img, type) VALUES ({data['room']}, {int(data['user_id'])}, '{name}', '{img}', 'group')")
     conn.commit()
 
-    conn.execute(f"INSERT INTO unread_messages (user_id, room, amount) VALUES ({data['room']}, {int(data['user_id'])}, 0)")
+    conn.execute(f"INSERT INTO unread_messages (user_id, room, amount) VALUES ({int(data['user_id'])}, {data['room']}, 0)")
     conn.commit()
 
     message = f"{data['username']} joined the group"
