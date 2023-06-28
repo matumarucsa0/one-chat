@@ -162,7 +162,7 @@ def handle_attachment(path, attachment):
     return f"/static/chat_images/{image_id}.jpg"
 
 def increment_message_unread(room_id):
-    users = conn.execute(f"SELECT users FROM chat_room WHERE id={room_id}").fetchall()
+    users = conn.execute(f"SELECT users FROM chat_room WHERE id={int(room_id)}").fetchall()
     for user in users:
         current_unread_messages = conn.execute(f"SELECT amount FROM unread_messages WHERE user_id={int(user[0])} AND room={int(room_id)}").fetchall()[0][0]
         conn.execute(f"UPDATE unread_messages SET amount={current_unread_messages+1} WHERE user_id={int(user[0])} AND room = {int(room_id)}")
@@ -182,8 +182,8 @@ def process_message(user_id, username, message, formated_time, profile_pic, room
         conn.commit()
 
     if len(message) > 0:
-        increment_message_unread(room)
         conn.execute(f"INSERT INTO posts (post, date, username, user_id, room, int_date) VALUES ('{message}', '{formated_time}', '{username}', {user_id}, {room}, {time.time()})")
+        increment_message_unread(room)
         conn.commit()
         message = message.split(';,;')
         emit("massage",{'chat':message, 'user': f"{username} {formated_time}", 'user_id': user_id, 'profile_pic' : profile_pic, "only_emotes": only_emotes, "room": room}, room=room, broadcast=True)
@@ -238,8 +238,29 @@ def leave_group():
         message = f"{removing_user} removed {removed_user} from the group"
     elif data['method'] == "left":
         message = f"{removed_user} left the group"
+    
+    conn.execute(f"DELETE FROM chat_room WHERE id={int(data['room'])} AND users={int(data['user'])}")
+    conn.commit()
+    conn.execute(f"DELETE FROM unread_messages WHERE user_id={int(data['user'])} AND room={int(data['room'])}")
+    conn.commit()
     admin_message(message, data['room'], "leave-group", "/static/setup/leave.svg")
-    conn.execute(f"DELETE FROM chat_room WHERE id={data['room']} AND users={data['user']}")
+    return {}
+
+@app.route("/add-user-group", methods=['POST'])
+def add_user_group():
+    data = json.loads(request.data)
+    
+    name, img = conn.execute(f"SELECT name, img FROM chat_room WHERE id={data['room']} LIMIT 1").fetchall()[0]
+
+    conn.execute(f"INSERT INTO chat_room (id, users, name, img, type) VALUES ({data['room']}, {int(data['user_id'])}, '{name}', '{img}', 'group')")
+    conn.commit()
+
+    conn.execute(f"INSERT INTO unread_messages (user_id, room, amount) VALUES ({data['room']}, {int(data['user_id'])}, 0)")
+    conn.commit()
+
+    message = f"{data['username']} joined the group"
+
+    admin_message(message, data['room'], "join-group", "/static/setup/join.svg")
     conn.commit()
     return {}
 
@@ -350,7 +371,7 @@ def index(room):
     emotes = os.listdir(PATH + "/static/emotes")
     messages = conn.execute(f"SELECT * FROM posts WHERE room={room};").fetchall()
     if len(messages) ==0:
-        return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic, emotes = emotes, room=room, rooms=rooms, group=group, group_user_amount=room_memeber_amount, unread_messages=unread_messages, is_online_current = is_online_current)
+        return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic, emotes = emotes, room=room, rooms=rooms, group=group, group_user_amount=room_memeber_amount, unread_messages=unread_messages)
 
     r = []
     # !!! LOW EFFICIENCY
@@ -422,7 +443,7 @@ def index(room):
             image_src = ""
 
     
-    return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic,  messages = r, emotes=emotes, room = room, rooms=rooms, group=group, group_user_amount=room_memeber_amount, unread_messages=unread_messages, is_online_current = is_online_current)
+    return render_template("index.html",user_id = user_id, username = username,profile_pic = profile_pic,  messages = r, emotes=emotes, room = room, rooms=rooms, group=group, group_user_amount=room_memeber_amount, unread_messages=unread_messages)
 
 
 @app.route("/change-group-name", methods=["POST"])
@@ -442,6 +463,7 @@ def admin_message(message, room, socket_param="message", image="none"):
     time_formated = datetime.now().strftime("%m/%d/%Y %H:%M")
 
     conn.execute(f"INSERT INTO posts (post, date, username, user_id, room, int_date) VALUES('{post}', '{time_formated}', 'admin', '6969696', {room}, {time.time()}) ")
+    increment_message_unread(int(room))
     socketio.emit(socket_param,{'content':message, "src": image, "admin": "", "room": int(room)}, room=int(room))
     conn.commit()
 
@@ -543,7 +565,7 @@ def reg():
             conn.commit()
             user_id = conn.execute(f"SELECT id FROM users WHERE username='{username}'").fetchall()[0][0]
             conn.execute(f"INSERT INTO chat_room (id, users, name, img, type) VALUES (0, {user_id}, 'main_chat', '/static/setup/group.png', 'group')")
-            
+            conn.execute(f"INSERT INTO unread_messages (user_id, room, amount) VALUES (0, {user_id}, 0)")
         return status
     else:
         return render_template("register.html")

@@ -85,6 +85,10 @@ socket.on("change-goup-name", async function (data){
 
 })
 
+socket.on("joined-group", async function (data){
+    unread_messages(room)
+})
+
 socket.on("leave-group",async function (data){
     chat = document.querySelector(`a[chat_id='chat-${data["room"]}']`)
     chat.remove()

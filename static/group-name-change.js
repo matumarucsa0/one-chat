@@ -60,7 +60,7 @@ const content_inner =  content.innerHTML
 function side_users(){
   observe = false
   resizeObserver.unobserve(element)
-
+  document.getElementById("anchor").scrollIntoView(true)
   if (divisor.classList.contains("main-div-group")){
 
     document.getElementById("users-of-group").remove()
@@ -76,6 +76,7 @@ function side_users(){
 
   observe = true
   resizeObserver.observe(element)
-
+  document.getElementById("anchor").scrollIntoView(true)
   observer_resize()
+  document.getElementById("anchor").scrollIntoView(true)
 }

@@ -34,6 +34,61 @@ async function get_users_direct(){
     }
 }
 
+async function add_user_to_group(){
+    user_box = document.getElementById("search-users-div")
+    user_box.innerHTML = ""
+
+    document.getElementById("add-chat-box").style.display = "block"
+
+    document.getElementById("overlay2").style.display = "block"
+
+    users_in_group_html = document.getElementById("users-of-group").querySelectorAll("div[class='chat-select']")
+    console.log(users_in_group_html.values)
+    users_in_group = []
+    for (i = 0; i < users_in_group_html.length; i++){
+        
+        id = users_in_group_html[i].querySelector("circle").getAttribute("user_id")
+        console.log(Number(id))
+        users_in_group.push(id)
+    }
+
+
+    const response = await fetch('/users');
+    const data = await response.json();
+    for (i = 0; i < data.length; i++){
+        if (!(users_in_group.includes(String(data[i][0])))){
+            console.log((String(data[i][0]) in users_in_group), users_in_group, String(data[i][0]))
+            user_div = document.createElement("div")
+            user_div.setAttribute("class", "user_div")
+            user_div.setAttribute("onclick", `add_user(${data[i][0]}, '${data[i][1]}')`)
+
+            img = document.createElement("img")
+            img.setAttribute("src", `/static/profile-pic/${data[i][2]}`)
+            user_div.appendChild(img)
+
+            name_ = document.createElement("p")
+            name_.innerHTML = data[i][1]
+            user_div.appendChild(name_)
+
+            user_box.appendChild(user_div)
+        }
+    }
+}
+
+async function add_user(user, username){
+    console.log(user, username, room)
+    response = await fetch("/add-user-group", {
+        method: "POST",
+        body: `{
+            "user_id": "${user}",
+            "username": "${username}",
+            "room": "${room}"
+        }`
+       });
+    location.reload()
+
+}
+
 async function add_direct_chat(id){
     response = await fetch("/add-chat", {
     method: "POST",
@@ -42,8 +97,7 @@ async function add_direct_chat(id){
     }`
    });
    status_ = await response.json()
-   console.log(status_)
-   console.log(response)
+
    if ('error' == status_['status']){
     alert("The chat already exists")
    }
@@ -113,16 +167,15 @@ function select_checkbox(checkbox_id){
 
 async function add_group(){
     options = document.getElementsByClassName("checkbox")
-    console.log(options)
+
     users_to_the_goup = []
     for (i = 0; i < options.length; i++){
-        console.log(options[i].checked)
-        console.log(options[i].getAttribute('user_id'))
+
         if (options[i].checked){
             users_to_the_goup.push(options[i].getAttribute('user_id')) 
         }
     }
-    console.log(users_to_the_goup)
+
     response = await fetch("/add-group", {
         method: "POST",
         body: `{
